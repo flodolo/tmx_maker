@@ -55,27 +55,24 @@ def escape(t):
         .replace('_sl@sh_', '\\\\')
         )
 
-def get_string(package, local_directory):
+def get_string(package, local_directory, strings_array):
     for item in package:
         if (type(item[1]) is not silme.core.structure.Blob) and not(isinstance(item[1], silme.core.Package)):
             for entity in item[1]:
                 string_id = '{0}/{1}:{2}'.format(local_directory, item[0], entity)
-                strings[string_id] = item[1][entity].get_value()
+                strings_array[string_id] = item[1][entity].get_value()
         elif (isinstance(item[1], silme.core.Package)):
             if (item[0] != 'en-US') and (item[0] != 'locales'):
-                get_string(item[1], local_directory + '/' + item[0])
+                get_string(item[1], local_directory + '/' + item[0], strings_array)
             else:
-                get_string(item[1], local_directory)
-
-    return strings
+                get_string(item[1], local_directory, strings_array)
 
 def php_header(target_file):
     target_file.write('<?php\n$tmx = [\n')
 
-def php_add_to_array(ent, ch, target_file):
-    ch = escape(ch)
-    ch = ch.encode('utf-8')
-    target_file.write("'{0}' => '{1}',\n".format(ent.encode('utf-8'), ch))
+def php_add_to_array(entity, translation, target_file):
+    translation = escape(translation).encode('utf-8')
+    target_file.write("'{0}' => '{1}',\n".format(entity.encode('utf-8'), translation))
 
 def php_close_array(target_file):
     target_file.write('];\n')
@@ -111,33 +108,26 @@ if __name__ == '__main__':
     php_header(target_locale)
 
     for directory in dirs:
-        path_reference = args.reference_repo + directory
-        path_locale = args.locale_repo + directory
+        path_reference = os.path.join(args.reference_repo, directory)
+        path_locale = os.path.join(args.locale_repo, directory)
 
         rcsClient = silme.io.Manager.get('file')
         try:
             l10nPackage_reference = rcsClient.get_package(path_reference, object_type='entitylist')
         except:
-            print 'Silme couldn\'t extract data for ' + path_reference
+            print 'Silme couldn\'t extract data for ', path_reference
             continue
 
         try:
             l10nPackage_locale = rcsClient.get_package(path_locale, object_type='entitylist')
         except:
-            print 'Silme couldn\'t extract data for ' + path_locale
+            print 'Silme couldn\'t extract data for ', path_locale
             continue
 
-        strings = {}
-        strings_reference = get_string(l10nPackage_reference, directory)
-
-        '''
-        get_string() is a recursive function that fills 'strings', a global array
-        We need to reset that global array before calling the function again
-        '''
-        del strings
-        strings = {}
-        strings_locale = get_string(l10nPackage_locale, directory)
-
+        strings_reference = {}
+        strings_locale = {}
+        get_string(l10nPackage_reference, directory, strings_reference)
+        get_string(l10nPackage_locale, directory, strings_locale)
         for entity in strings_reference:
             php_add_to_array(entity, strings_locale.get(entity, ''), target_locale)
 
