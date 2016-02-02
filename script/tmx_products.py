@@ -7,8 +7,10 @@ import subprocess
 import sys
 from ConfigParser import SafeConfigParser
 
-# Get absolute path of ../config from the current script location (not the current folder)
-config_folder = os.path.abspath(os.path.join(os.path.dirname(__file__), os.pardir, 'config'))
+# Get absolute path of ../config from the current script location (not the
+# current folder)
+config_folder = os.path.abspath(
+    os.path.join(os.path.dirname(__file__), os.pardir, 'config'))
 
 # Read Transvision's configuration file from ../config/config.ini
 config_file = os.path.join(config_folder, 'config.ini')
@@ -50,27 +52,97 @@ except ImportError:
 def escape(t):
     '''Escape quotes in `t`. Complicated replacements because some strings are already escaped in the repo'''
     return (t.replace("\\'", '_qu0te_')
-        .replace('\\', '_sl@sh_')
-        .replace("'", "\\'")
-        .replace('_qu0te_', "\\'")
-        .replace('_sl@sh_', '\\\\')
-        )
+            .replace('\\', '_sl@sh_')
+            .replace("'", "\\'")
+            .replace('_qu0te_', "\\'")
+            .replace('_sl@sh_', '\\\\')
+            )
 
 
-def get_string(package, local_directory, strings_array):
+def get_strings(package, local_directory, strings_array):
+    '''Store recursively translations from files in local_directory in a list of string'''
     for item in package:
         if (type(item[1]) is not silme.core.structure.Blob) and not(isinstance(item[1], silme.core.Package)):
             for entity in item[1]:
-                string_id = '{0}/{1}:{2}'.format(local_directory, item[0], entity)
+                string_id = '{0}/{1}:{2}'.format(
+                    local_directory, item[0], entity)
                 strings_array[string_id] = item[1][entity].get_value()
         elif (isinstance(item[1], silme.core.Package)):
             if (item[0] != 'en-US') and (item[0] != 'locales'):
-                get_string(item[1], local_directory + '/' + item[0], strings_array)
+                get_strings(item[1], local_directory + '/' + item[0],
+                           strings_array)
             else:
-                get_string(item[1], local_directory, strings_array)
+                get_strings(item[1], local_directory, strings_array)
 
 
-if __name__ == '__main__':
+def create_directories_list(locale_repo, reference_repo, repository):
+    ''' Create a list of folders to analyze '''
+    exclusion_list = ['.hgtags', '.hg', '.git', '.gitignore']
+    dirs_locale = os.listdir(locale_repo)
+    if repository.startswith('gaia') or repository == 'l20n_test':
+        dirs_reference = os.listdir(reference_repo)
+        dirs_reference = [x for x in dirs_reference if x not in exclusion_list]
+    else:
+        dirs_reference = [
+            'browser', 'calendar', 'chat', 'devtools', 'dom', 'editor',
+            'extensions', 'mail', 'mobile', 'netwerk', 'other-licenses',
+            'security', 'services', 'suite', 'toolkit', 'webapprt'
+        ]
+
+    dirs = filter(lambda x: x in dirs_locale, dirs_reference)
+
+    return dirs
+
+
+def create_tmx_content(reference_repo, locale_repo, dirs):
+    ''' Extract strings from repository, return them as a list of PHP array
+        elements. '''
+    tmx_content = []
+    for directory in dirs:
+        path_reference = os.path.join(reference_repo, directory)
+        path_locale = os.path.join(locale_repo, directory)
+
+        rcsClient = silme.io.Manager.get('file')
+        try:
+            l10nPackage_reference = rcsClient.get_package(
+                path_reference, object_type='entitylist')
+        except:
+            print 'Silme couldn\'t extract data for ', path_reference
+            continue
+
+        try:
+            l10nPackage_locale = rcsClient.get_package(
+                path_locale, object_type='entitylist')
+        except:
+            print 'Silme couldn\'t extract data for ', path_locale
+            continue
+
+        strings_reference = {}
+        strings_locale = {}
+        get_strings(l10nPackage_reference, directory, strings_reference)
+        get_strings(l10nPackage_locale, directory, strings_locale)
+        for entity in strings_reference:
+            # Append string to tmx_content, using the format of a PHP array
+            # element
+            translation = escape(
+                strings_locale.get(entity, '')).encode('utf-8')
+            tmx_content.append("'{0}' => '{1}',\n".format(
+                entity.encode('utf-8'), translation))
+
+    return tmx_content
+
+
+def write_php_file(filename, tmx_content):
+    ''' Write TMX content as a PHP array on file '''
+    target_locale_file = open(filename, 'w')
+    target_locale_file.write('<?php\n$tmx = [\n')
+    for line in tmx_content:
+        target_locale_file.write(line)
+    target_locale_file.write('];\n')
+    target_locale_file.close()
+
+
+def main():
     # Read command line input parameters
     parser = argparse.ArgumentParser()
     parser.add_argument('locale_repo', help='Path to locale files')
@@ -80,55 +152,19 @@ if __name__ == '__main__':
     parser.add_argument('repository', help='Repository name')
     args = parser.parse_args()
 
-    exclusionlist = ['.hgtags', '.hg', '.git', '.gitignore']
-    dirs_locale = os.listdir(args.locale_repo)
-    if args.repository.startswith('gaia') or args.repository == 'l20n_test' :
-        dirs_reference = os.listdir(args.reference_repo)
-        dirs_reference = [x for x in dirs_reference if x not in exclusionlist]
-    else:
-        dirs_reference = [
-            'browser', 'calendar', 'chat', 'devtools', 'dom', 'editor',
-            'extensions', 'mail', 'mobile', 'netwerk', 'other-licenses',
-            'security', 'services', 'suite', 'toolkit', 'webapprt'
-        ]
-
-    dirs = filter(lambda x:x in dirs_locale, dirs_reference)
-
-    tmx_content = []
-    for directory in dirs:
-        path_reference = os.path.join(args.reference_repo, directory)
-        path_locale = os.path.join(args.locale_repo, directory)
-
-        rcsClient = silme.io.Manager.get('file')
-        try:
-            l10nPackage_reference = rcsClient.get_package(path_reference, object_type='entitylist')
-        except:
-            print 'Silme couldn\'t extract data for ', path_reference
-            continue
-
-        try:
-            l10nPackage_locale = rcsClient.get_package(path_locale, object_type='entitylist')
-        except:
-            print 'Silme couldn\'t extract data for ', path_locale
-            continue
-
-        strings_reference = {}
-        strings_locale = {}
-        get_string(l10nPackage_reference, directory, strings_reference)
-        get_string(l10nPackage_locale, directory, strings_locale)
-        for entity in strings_reference:
-            # Add string in PHP array format to the tmx_content list
-            translation = escape(strings_locale.get(entity, '')).encode('utf-8')
-            tmx_content.append("'{0}' => '{1}',\n".format(entity.encode('utf-8'), translation))
+    dirs = create_directories_list(
+        args.reference_repo, args.locale_repo, args.repository
+    )
+    tmx_content = create_tmx_content(
+        args.reference_repo, args.locale_repo, dirs)
 
     # Store the actual file on disk
     filename_locale = os.path.join(
         os.path.join(storage_path, args.locale_code),
         'cache_{0}_{1}.php'.format(args.locale_code, args.repository)
     )
-    target_locale_file = open(filename_locale, 'w')
-    target_locale_file.write('<?php\n$tmx = [\n')
-    for line in tmx_content:
-        target_locale_file.write(line)
-    target_locale_file.write('];\n')
-    target_locale_file.close()
+    write_php_file(filename_locale, tmx_content)
+
+
+if __name__ == '__main__':
+    main()
