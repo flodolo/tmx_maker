@@ -47,39 +47,40 @@ except ImportError:
     sys.exit(1)
 
 def escape(t):
-    """Escape quotes in `t`. Complicated replacements because some strings are already escaped in the repo"""
+    '''Escape quotes in `t`. Complicated replacements because some strings are already escaped in the repo'''
     return (t.replace("\\'", '_qu0te_')
-        .replace("\\", "_sl@sh_")
+        .replace('\\', '_sl@sh_')
         .replace("'", "\\'")
         .replace('_qu0te_', "\\'")
         .replace('_sl@sh_', '\\\\')
         )
 
-def get_string(package, localdirectory):
+def get_string(package, local_directory):
     for item in package:
         if (type(item[1]) is not silme.core.structure.Blob) and not(isinstance(item[1], silme.core.Package)):
             for entity in item[1]:
-                strings[localdirectory + "/" + item[0] + ":" + entity] = item[1][entity].get_value()
+                string_id = '{0}/{1}:{2}'.format(local_directory, item[0], entity)
+                strings[string_id] = item[1][entity].get_value()
         elif (isinstance(item[1], silme.core.Package)):
             if (item[0] != 'en-US') and (item[0] != 'locales'):
-                get_string(item[1], localdirectory + '/' + item[0])
+                get_string(item[1], local_directory + '/' + item[0])
             else:
-                get_string(item[1], localdirectory)
+                get_string(item[1], local_directory)
 
     return strings
 
 def php_header(target_file):
-    target_file.write("<?php\n$tmx = [\n")
+    target_file.write('<?php\n$tmx = [\n')
 
-def php_add_to_array(ent,ch,target_file):
+def php_add_to_array(ent, ch, target_file):
     ch = escape(ch)
     ch = ch.encode('utf-8')
-    target_file.write('\'' + ent.encode('utf-8') + "\' => '" + ch + "',\n")
+    target_file.write("'{0}' => '{1}',\n".format(ent.encode('utf-8'), ch))
 
 def php_close_array(target_file):
-    target_file.write("];\n")
+    target_file.write('];\n')
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     # Read command line input parameters
     parser = argparse.ArgumentParser()
     parser.add_argument('locale_repo', help='Path to locale files')
@@ -96,17 +97,17 @@ if __name__ == "__main__":
         dirs_reference = [x for x in dirs_reference if x not in exclusionlist]
     else:
         dirs_reference = [
-            "browser", "calendar", "chat", "devtools", "dom", "editor",
-            "extensions", "mail", "mobile", "netwerk", "other-licenses",
-            "security", "services", "suite", "toolkit", "webapprt"
+            'browser', 'calendar', 'chat', 'devtools', 'dom', 'editor',
+            'extensions', 'mail', 'mobile', 'netwerk', 'other-licenses',
+            'security', 'services', 'suite', 'toolkit', 'webapprt'
         ]
 
     dirs = filter(lambda x:x in dirs_locale, dirs_reference)
 
     localpath = os.path.join(storage_path, args.locale_code)
-    filename_locale = os.path.join(localpath, "cache_%s_%s.php" % (args.locale_code, args.repository))
+    filename_locale = os.path.join(localpath, 'cache_{0}_{1}.php'.format(args.locale_code, args.repository))
 
-    target_locale = open(filename_locale, "w")
+    target_locale = open(filename_locale, 'w')
     php_header(target_locale)
 
     for directory in dirs:
@@ -129,16 +130,16 @@ if __name__ == "__main__":
         strings = {}
         strings_reference = get_string(l10nPackage_reference, directory)
 
-        """
+        '''
         get_string() is a recursive function that fills 'strings', a global array
         We need to reset that global array before calling the function again
-        """
+        '''
         del strings
         strings = {}
         strings_locale = get_string(l10nPackage_locale, directory)
 
         for entity in strings_reference:
-            php_add_to_array(entity, strings_locale.get(entity, ""), target_locale)
+            php_add_to_array(entity, strings_locale.get(entity, ''), target_locale)
 
     php_close_array(target_locale)
     target_locale.close()
