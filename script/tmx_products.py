@@ -3,25 +3,48 @@
 import argparse
 import datetime
 import os
+import subprocess
 import sys
 from ConfigParser import SafeConfigParser
 
-""" Here we read the server configuration file """
+# Get absolute path of ../config from the current script location (not the current folder)
+config_folder = os.path.abspath(os.path.join(os.path.dirname(__file__), os.pardir, 'config'))
+
+# Read Transvision's configuration file from ../config/config.ini
+config_file = os.path.join(config_folder, 'config.ini')
+if not os.path.isfile(config_file):
+    print 'Configuration file /app/config/config.ini is missing.'
+    sys.exit(1)
+
 parser = SafeConfigParser()
-# Get absolute path of ../config from current script location (not current folder)
-config_folder = os.path.abspath(os.path.join(os.path.dirname( __file__ ), os.pardir, 'config'))
-parser.read(os.path.join(config_folder, "config.ini"))
-libraries = parser.get('config', 'libraries')
-localdir = os.path.join(parser.get('config', 'root'), 'TMX')
+parser.read(config_file)
+library_path = parser.get('config', 'libraries')
+storage_path = os.path.join(parser.get('config', 'root'), 'TMX')
 
-sys.path.append(libraries + '/silme/lib')
+# Import Silme library (http://hg.mozilla.org/l10n/silme/)
+silme_path = os.path.join(library_path, 'silme')
 
-import silme.diff
-import silme.core
-import silme.format
-import silme.io
+if not os.path.isdir(silme_path):
+    try:
+        print 'Cloning silme...'
+        cmd_status = subprocess.check_output(
+            ['hg', 'clone', 'https://hg.mozilla.org/l10n/silme',
+                silme_path, '-u', 'silme-0.8.0'],
+            stderr=subprocess.STDOUT,
+            shell=False)
+        print cmd_status
+    except Exception as e:
+        print e
 
-silme.format.Manager.register('dtd', 'properties', 'ini', 'inc')
+sys.path.append(os.path.join(silme_path, 'lib'))
+try:
+    import silme.core
+    import silme.io
+    import silme.format
+    silme.format.Manager.register('dtd', 'properties', 'ini', 'inc')
+except ImportError:
+    print 'Error importing Silme library'
+    sys.exit(1)
 
 def escape(t):
     """Escape quotes in `t`. Complicated replacements because some strings are already escaped in the repo"""
@@ -80,7 +103,7 @@ if __name__ == "__main__":
 
     dirs = filter(lambda x:x in dirs_locale, dirs_reference)
 
-    localpath = os.path.join(localdir, args.locale_code)
+    localpath = os.path.join(storage_path, args.locale_code)
     filename_locale = os.path.join(localpath, "cache_%s_%s.php" % (args.locale_code, args.repository))
 
     target_locale = open(filename_locale, "w")
