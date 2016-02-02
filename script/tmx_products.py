@@ -46,6 +46,7 @@ except ImportError:
     print 'Error importing Silme library'
     sys.exit(1)
 
+
 def escape(t):
     '''Escape quotes in `t`. Complicated replacements because some strings are already escaped in the repo'''
     return (t.replace("\\'", '_qu0te_')
@@ -54,6 +55,7 @@ def escape(t):
         .replace('_qu0te_', "\\'")
         .replace('_sl@sh_', '\\\\')
         )
+
 
 def get_string(package, local_directory, strings_array):
     for item in package:
@@ -67,15 +69,6 @@ def get_string(package, local_directory, strings_array):
             else:
                 get_string(item[1], local_directory, strings_array)
 
-def php_header(target_file):
-    target_file.write('<?php\n$tmx = [\n')
-
-def php_add_to_array(entity, translation, target_file):
-    translation = escape(translation).encode('utf-8')
-    target_file.write("'{0}' => '{1}',\n".format(entity.encode('utf-8'), translation))
-
-def php_close_array(target_file):
-    target_file.write('];\n')
 
 if __name__ == '__main__':
     # Read command line input parameters
@@ -101,12 +94,7 @@ if __name__ == '__main__':
 
     dirs = filter(lambda x:x in dirs_locale, dirs_reference)
 
-    localpath = os.path.join(storage_path, args.locale_code)
-    filename_locale = os.path.join(localpath, 'cache_{0}_{1}.php'.format(args.locale_code, args.repository))
-
-    target_locale = open(filename_locale, 'w')
-    php_header(target_locale)
-
+    tmx_content = []
     for directory in dirs:
         path_reference = os.path.join(args.reference_repo, directory)
         path_locale = os.path.join(args.locale_repo, directory)
@@ -129,7 +117,18 @@ if __name__ == '__main__':
         get_string(l10nPackage_reference, directory, strings_reference)
         get_string(l10nPackage_locale, directory, strings_locale)
         for entity in strings_reference:
-            php_add_to_array(entity, strings_locale.get(entity, ''), target_locale)
+            # Add string in PHP array format to the tmx_content list
+            translation = escape(strings_locale.get(entity, '')).encode('utf-8')
+            tmx_content.append("'{0}' => '{1}',\n".format(entity.encode('utf-8'), translation))
 
-    php_close_array(target_locale)
-    target_locale.close()
+    # Store the actual file on disk
+    filename_locale = os.path.join(
+        os.path.join(storage_path, args.locale_code),
+        'cache_{0}_{1}.php'.format(args.locale_code, args.repository)
+    )
+    target_locale_file = open(filename_locale, 'w')
+    target_locale_file.write('<?php\n$tmx = [\n')
+    for line in tmx_content:
+        target_locale_file.write(line)
+    target_locale_file.write('];\n')
+    target_locale_file.close()
