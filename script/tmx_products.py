@@ -13,15 +13,19 @@ config_folder = os.path.abspath(
     os.path.join(os.path.dirname(__file__), os.pardir, 'config'))
 
 # Read Transvision's configuration file from ../config/config.ini
+# If not available use default a /storage folder so store data
 config_file = os.path.join(config_folder, 'config.ini')
 if not os.path.isfile(config_file):
-    print 'Configuration file /app/config/config.ini is missing.'
-    sys.exit(1)
-
-parser = SafeConfigParser()
-parser.read(config_file)
-library_path = parser.get('config', 'libraries')
-storage_path = os.path.join(parser.get('config', 'root'), 'TMX')
+    print 'Configuration file /app/config/config.ini is missing. Default folders will be used.'
+    storage_path = os.path.abspath(
+        os.path.join(os.path.dirname(__file__), os.pardir))
+    library_path = os.path.join(storage_path, 'libraries')
+    storage_path = os.path.join(storage_path, 'TMX')
+else:
+    config_parser = SafeConfigParser()
+    config_parser.read(config_file)
+    library_path = config_parser.get('config', 'libraries')
+    storage_path = os.path.join(config_parser.get('config', 'root'), 'TMX')
 
 # Import Silme library (http://hg.mozilla.org/l10n/silme/)
 silme_path = os.path.join(library_path, 'silme')
@@ -70,7 +74,7 @@ def get_strings(package, local_directory, strings_array):
         elif (isinstance(item[1], silme.core.Package)):
             if (item[0] != 'en-US') and (item[0] != 'locales'):
                 get_strings(item[1], local_directory + '/' + item[0],
-                           strings_array)
+                            strings_array)
             else:
                 get_strings(item[1], local_directory, strings_array)
 
