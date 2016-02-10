@@ -68,8 +68,10 @@ def get_strings(package, local_directory, strings_array):
     for item in package:
         if (type(item[1]) is not silme.core.structure.Blob) and not(isinstance(item[1], silme.core.Package)):
             for entity in item[1]:
+                # String ID is the format folder/filename:entity. Make
+                # sure to remove a starting '/' from the folder's name
                 string_id = '{0}/{1}:{2}'.format(
-                    local_directory, item[0], entity)
+                    local_directory.lstrip('/'), item[0], entity)
                 strings_array[string_id] = item[1][entity].get_value()
         elif (isinstance(item[1], silme.core.Package)):
             if (item[0] != 'en-US') and (item[0] != 'locales'):
@@ -81,19 +83,17 @@ def get_strings(package, local_directory, strings_array):
 
 def create_directories_list(locale_repo, reference_repo, repository):
     ''' Create a list of folders to analyze '''
-    exclusion_list = ['.hgtags', '.hg', '.git', '.gitignore']
-    dirs_locale = os.listdir(locale_repo)
     if repository.startswith('gaia') or repository == 'l20n_test':
-        dirs_reference = os.listdir(reference_repo)
-        dirs_reference = [x for x in dirs_reference if x not in exclusion_list]
+        # Examine the entire folder
+        dirs = ['']
     else:
+        dirs_locale = os.listdir(locale_repo)
         dirs_reference = [
             'browser', 'calendar', 'chat', 'devtools', 'dom', 'editor',
             'extensions', 'mail', 'mobile', 'netwerk', 'other-licenses',
             'security', 'services', 'suite', 'toolkit', 'webapprt'
         ]
-
-    dirs = filter(lambda x: x in dirs_locale, dirs_reference)
+        dirs = filter(lambda x: x in dirs_locale, dirs_reference)
 
     return dirs
 

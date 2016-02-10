@@ -9,7 +9,7 @@ class TestCreateDirectoriesList(unittest.TestCase):
 
     def testStandardProduct(self):
         locale_path = os.path.abspath(
-            os.path.join(os.path.dirname(__file__), 'testfiles', 'zh-CN'))
+            os.path.join(os.path.dirname(__file__), 'testfiles', 'product', 'zh-CN'))
 
         self.assertTrue(
             'browser' in create_directories_list(locale_path, '', 'aurora'))
@@ -24,12 +24,10 @@ class TestCreateDirectoriesList(unittest.TestCase):
         locale_path = os.path.join(testfiles_path, 'it')
         reference_path = os.path.join(testfiles_path, 'en-US')
 
-        self.assertTrue(
-            'apps' in create_directories_list(locale_path, reference_path, 'gaia'))
-        self.assertTrue(
-            'distros' in create_directories_list(locale_path, reference_path, 'gaia_2_0'))
-        self.assertFalse(
-            'unknown' in create_directories_list(locale_path, reference_path, 'gaia_2_5'))
+        self.assertEqual(
+            create_directories_list(locale_path, reference_path, 'gaia'), [''])
+        self.assertEqual(
+            create_directories_list(locale_path, reference_path, 'gaia_2_5'), [''])
 
 
 if __name__ == '__main__':
