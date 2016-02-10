@@ -1,0 +1,4 @@
+<!ENTITY test1 "Prova con uno \ slash">
+<!ENTITY test2 "Prova con 'virgolette'">
+<!ENTITY test3 "Per attivare la funzione “Apertura di più link” garantire a &brandShortName; il permesso “Consenti spostamento su altre app”">
+<!ENTITY test_extra "Extra string: this one is not available in the reference language">
