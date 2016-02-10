@@ -20,7 +20,7 @@ if not os.path.isfile(config_file):
     storage_path = os.path.abspath(
         os.path.join(os.path.dirname(__file__), os.pardir))
     library_path = os.path.join(storage_path, 'libraries')
-    storage_path = os.path.join(storage_path, 'TMX')
+    storage_path = os.path.join(storage_path, 'tests', 'testfiles', 'output')
 else:
     config_parser = SafeConfigParser()
     config_parser.read(config_file)
