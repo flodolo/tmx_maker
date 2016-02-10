@@ -6,7 +6,7 @@ import unittest
 
 class TestEscape(unittest.TestCase):
 
-    def testCleanString(self):
+    def testCleanStrings(self):
         strings = {
             'This is a simple test.': 'This is a simple test.',
             '您的電腦中已儲存下列的 Cookie:': '您的電腦中已儲存下列的 Cookie:'
@@ -15,7 +15,7 @@ class TestEscape(unittest.TestCase):
         for string, result in strings.iteritems():
             self.assertEqual(escape(string), result)
 
-    def testEscapedString(self):
+    def testEscapedStrings(self):
         strings = {
             'Retirer les caractères d’échappement \\xNN ?': 'Retirer les caractères d’échappement \\\\xNN ?',
             'Test with one \ slash': 'Test with one \\\ slash',
