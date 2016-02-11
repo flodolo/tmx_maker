@@ -21,8 +21,8 @@ class TestEscape(unittest.TestCase):
             r'Test with two \\ slash characters': r'Test with two \\\\ slash characters',
             r'Retirer les caractères d’échappement \\xNN ?': r'Retirer les caractères d’échappement \\\\xNN ?',
             r"Test with unescaped single 'quotes'": r"Test with unescaped single \'quotes\'",
-            r"Test with escaped single \'quotes\'": r"Test with escaped single \'quotes\'",
-            r"To \&quot;Open multiple links\&quot;, please enable the \'Draw over other apps\' permission for &brandShortName;": r"To \\&quot;Open multiple links\\&quot;, please enable the \'Draw over other apps\' permission for &brandShortName;"
+            r"Test with escaped single \'quotes\'": r"Test with escaped single \\\'quotes\\\'",
+            r"To \&quot;Open multiple links\&quot;, please enable the \'Draw over other apps\' permission for &brandShortName;": r"To \\&quot;Open multiple links\\&quot;, please enable the \\\'Draw over other apps\\\' permission for &brandShortName;"
         }
 
         for string, result in strings.iteritems():
