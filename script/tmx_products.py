@@ -62,13 +62,16 @@ def escape(translation):
         * We need to print these strings into a file, with the format of a
           PHP array delimited by single quotes ('id' => 'translation'). Hence
           we need to escape single quotes, but also escape backslashes.
+          "this is a 'test'" => "this is a \'test\'"
+          "this is a \'test\'" => "this is a \\\'test\\\'"
     '''
-    return (translation.replace("\\'", '_qu0te_')
-            .replace('\\', '_sl@sh_')
-            .replace("'", "\\'")
-            .replace('_qu0te_', "\\'")
-            .replace('_sl@sh_', '\\\\')
-            )
+
+    # Escape slashes
+    escaped_translation = translation.replace('\\', '\\\\')
+    # Escape single quotes
+    escaped_translation = escaped_translation.replace('\'', '\\\'')
+
+    return escaped_translation
 
 
 def get_strings(package, local_directory, strings_array):
