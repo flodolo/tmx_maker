@@ -1,4 +1,5 @@
 <!ENTITY test1 "Test with one \ slash">
 <!ENTITY test2 "Test with single 'quotes'">
+<!ENTITY test2b "Test with escaped single 'quotes'">
 <!ENTITY test3 "To \&quot;Open multiple links\&quot;, please enable the \'Draw over other apps\' permission for &brandShortName;">
 <!ENTITY test_missing "This one won't be translated in the locale">

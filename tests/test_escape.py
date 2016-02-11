@@ -17,10 +17,12 @@ class TestEscape(unittest.TestCase):
 
     def testEscapedStrings(self):
         strings = {
-            'Retirer les caractères d’échappement \\xNN ?': 'Retirer les caractères d’échappement \\\\xNN ?',
-            'Test with one \ slash': 'Test with one \\\ slash',
-            "Test with one 'quotes'": "Test with one \\'quotes\\'",
-            'To \&quot;Open multiple links\&quot;, please enable the \'Draw over other apps\' permission for &brandShortName;': 'To \\\\&quot;Open multiple links\\\\&quot;, please enable the \\\'Draw over other apps\\\' permission for &brandShortName;'
+            r'Test with one \ slash character': r'Test with one \\ slash character',
+            r'Test with two \\ slash characters': r'Test with two \\\\ slash characters',
+            r'Retirer les caractères d’échappement \\xNN ?': r'Retirer les caractères d’échappement \\\\xNN ?',
+            r"Test with unescaped single 'quotes'": r"Test with unescaped single \'quotes\'",
+            r"Test with escaped single \'quotes\'": r"Test with escaped single \'quotes\'",
+            r"To \&quot;Open multiple links\&quot;, please enable the \'Draw over other apps\' permission for &brandShortName;": r"To \\&quot;Open multiple links\\&quot;, please enable the \'Draw over other apps\' permission for &brandShortName;"
         }
 
         for string, result in strings.iteritems():

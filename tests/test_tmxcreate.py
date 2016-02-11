@@ -23,7 +23,7 @@ class TestCreateTMXContent(unittest.TestCase):
         tmx_content = create_tmx_content(
             reference_path, locale_path, ['test'])
 
-        self.assertEqual(len(tmx_content), 4)
+        self.assertEqual(len(tmx_content), 5)
         self.assertTrue(
             "'test/test.dtd:test1' => 'Prova con uno \\\\ slash',\n" in tmx_content)
         self.assertTrue("'test/test.dtd:test_missing' => '',\n" in tmx_content)
