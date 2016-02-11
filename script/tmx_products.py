@@ -141,7 +141,7 @@ def create_tmx_content(reference_repo, locale_repo, dirs):
             # element
             translation = escape(
                 strings_locale.get(entity, '')).encode('utf-8')
-            tmx_content.append("'{0}' => '{1}',\n".format(
+            tmx_content.append("'{0}' => '{1}'".format(
                 entity.encode('utf-8'), translation))
 
     return tmx_content
@@ -152,7 +152,7 @@ def write_php_file(filename, tmx_content):
     target_locale_file = open(filename, 'w')
     target_locale_file.write('<?php\n$tmx = [\n')
     for line in tmx_content:
-        target_locale_file.write(line)
+        target_locale_file.write(line + ',\n')
     target_locale_file.write('];\n')
     target_locale_file.close()
 

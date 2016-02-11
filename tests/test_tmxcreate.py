@@ -25,10 +25,10 @@ class TestCreateTMXContent(unittest.TestCase):
 
         self.assertEqual(len(tmx_content), 5)
         self.assertTrue(
-            "'test/test.dtd:test1' => 'Prova con uno \\\\ slash',\n" in tmx_content)
-        self.assertTrue("'test/test.dtd:test_missing' => '',\n" in tmx_content)
+            "'test/test.dtd:test1' => 'Prova con uno \\\\ slash'" in tmx_content)
+        self.assertTrue("'test/test.dtd:test_missing' => ''" in tmx_content)
         self.assertFalse(
-            "'test/test.dtd:test_extra' => 'Extra string: this one is not available in the reference language',\n" in tmx_content)
+            "'test/test.dtd:test_extra' => 'Extra string: this one is not available in the reference language'" in tmx_content)
 
     def testCreateTMXGaia(self):
         testfiles_path = os.path.abspath(
@@ -41,11 +41,11 @@ class TestCreateTMXContent(unittest.TestCase):
 
         self.assertEqual(len(tmx_content), 3)
         self.assertTrue(
-            "'/test_root.properties:test_root' => 'Dummy file',\n" in tmx_content)
+            "'/test_root.properties:test_root' => 'Dummy file'" in tmx_content)
         self.assertTrue(
-            "'distros/test_distros.properties:test2' => 'Dummy file',\n" in tmx_content)
+            "'distros/test_distros.properties:test2' => 'Dummy file'" in tmx_content)
         self.assertFalse(
-            "'unknown/test_unknown.properties:test3' => 'Dummy file',\n" in tmx_content)
+            "'unknown/test_unknown.properties:test3' => 'Dummy file'" in tmx_content)
 
     def testPHPOutput(self):
         testfiles_path = os.path.abspath(
