@@ -1,10 +1,12 @@
 # -*- coding: utf-8 -*-
 
-from script.tmx_products import create_tmx_content
-from script.tmx_products import write_php_file
+import env
 import filecmp
 import os
 import unittest
+
+from tmx_products.tmx_products import create_tmx_content
+from tmx_products.tmx_products import write_php_file
 
 import silme.core
 import silme.io

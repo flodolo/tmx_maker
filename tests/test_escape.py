@@ -1,8 +1,9 @@
 # -*- coding: utf-8 -*-
 
-from script.tmx_products import escape
+import env
 import unittest
 
+from tmx_products.tmx_products import escape
 
 class TestEscape(unittest.TestCase):
 

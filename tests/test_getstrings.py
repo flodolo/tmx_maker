@@ -1,8 +1,10 @@
 # -*- coding: utf-8 -*-
 
-from script.tmx_products import get_strings
+import env
 import os
 import unittest
+
+from tmx_products.tmx_products import get_strings
 
 import silme.core
 import silme.io
