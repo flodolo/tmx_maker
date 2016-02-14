@@ -5,6 +5,7 @@ import unittest
 
 from tmx_products.tmx_products import escape
 
+
 class TestEscape(unittest.TestCase):
 
     def testCleanStrings(self):

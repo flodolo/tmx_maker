@@ -1,0 +1,3 @@
+<!ENTITY test1 "Test with one \ slash">
+<!ENTITY test2 "Test with single 'quotes'">
+<!ENTITY test2b "Test with escaped single 'quotes'">
