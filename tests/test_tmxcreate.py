@@ -31,6 +31,23 @@ class TestCreateTMXContent(unittest.TestCase):
         self.assertTrue("'test/test.dtd:test_missing' => ''" in tmx_content)
         self.assertFalse(
             "'test/test.dtd:test_extra' => 'Extra string: this one is not available in the reference language'" in tmx_content)
+        self.assertTrue(
+            "'test/test.dtd:test_missing' => ''" in tmx_content)
+
+    def testCreateTMXEncodingError(self):
+        testfiles_path = os.path.abspath(
+            os.path.join(os.path.dirname(__file__), 'testfiles', 'tmx'))
+
+        locale_path = os.path.join(testfiles_path, 'oc')
+        reference_path = os.path.join(testfiles_path, 'en-US')
+        tmx_content = create_tmx_content(
+            reference_path, locale_path, ['mail', 'test'])
+
+        self.assertEqual(len(tmx_content), 5)
+        self.assertTrue(
+            "'test/test.dtd:test1' => 'Test with one \\\\ slash'" in tmx_content)
+        self.assertFalse(
+            "'test/test.dtd:test_missing' => 'This one won\\'t be translated in the locale'" in tmx_content)
 
     def testCreateTMXGaia(self):
         testfiles_path = os.path.abspath(

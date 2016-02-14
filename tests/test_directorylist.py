@@ -6,6 +6,7 @@ import unittest
 
 from tmx_products.tmx_products import create_directories_list
 
+
 class TestCreateDirectoriesList(unittest.TestCase):
 
     def testStandardProduct(self):

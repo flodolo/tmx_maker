@@ -81,7 +81,7 @@ def get_strings(package, local_directory, strings_array):
             for entity in item[1]:
                 # String ID is the format folder/filename:entity. Make
                 # sure to remove a starting '/' from the folder's name
-                string_id = '{0}/{1}:{2}'.format(
+                string_id = u'{0}/{1}:{2}'.format(
                     local_directory.lstrip('/'), item[0], entity)
                 strings_array[string_id] = item[1][entity].get_value()
         elif (isinstance(item[1], silme.core.Package)):
@@ -121,15 +121,22 @@ def create_tmx_content(reference_repo, locale_repo, dirs):
         try:
             l10nPackage_reference = rcsClient.get_package(
                 path_reference, object_type='entitylist')
-        except:
-            print 'Silme couldn\'t extract data for ', path_reference
+        except Exception as e:
+            print 'Silme couldn\'t extract data for', path_reference
+            print e
+            continue
+
+        if not os.path.isdir(path_locale):
+            # Folder doesn't exist for this locale, don't log a warning,
+            # just continue to the next folder.
             continue
 
         try:
             l10nPackage_locale = rcsClient.get_package(
                 path_locale, object_type='entitylist')
-        except:
-            print 'Silme couldn\'t extract data for ', path_locale
+        except Exception as e:
+            print 'Silme couldn\'t extract data for', path_locale
+            print e
             continue
 
         strings_reference = {}
