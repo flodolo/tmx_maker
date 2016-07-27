@@ -28,11 +28,12 @@ class TestCreateTMXContent(unittest.TestCase):
         self.assertEqual(len(tmx_content), 5)
         self.assertTrue(
             "'test/test.dtd:test1' => 'Prova con uno \\\\ slash'" in tmx_content)
-        self.assertTrue("'test/test.dtd:test_missing' => ''" in tmx_content)
         self.assertFalse(
             "'test/test.dtd:test_extra' => 'Extra string: this one is not available in the reference language'" in tmx_content)
-        self.assertTrue(
+        self.assertFalse(
             "'test/test.dtd:test_missing' => ''" in tmx_content)
+        self.assertTrue(
+            "'test/test.dtd:test_empty' => ''" in tmx_content)
 
     def testCreateTMXEncodingError(self):
         testfiles_path = os.path.abspath(
@@ -43,7 +44,7 @@ class TestCreateTMXContent(unittest.TestCase):
         tmx_content = create_tmx_content(
             reference_path, locale_path, ['mail', 'test'])
 
-        self.assertEqual(len(tmx_content), 5)
+        self.assertEqual(len(tmx_content), 3)
         self.assertTrue(
             "'test/test.dtd:test1' => 'Test with one \\\\ slash'" in tmx_content)
         self.assertFalse(
@@ -78,11 +79,13 @@ class TestCreateTMXContent(unittest.TestCase):
         output_filename = os.path.join(testfiles_path, 'output', 'tmp.php')
         write_php_file(output_filename, tmx_content)
 
+        # Store comparison and remove file before running the test
         cmp_filename = os.path.join(testfiles_path, 'output', 'cmp_output.php')
-
-        self.assertTrue(filecmp.cmp(output_filename, cmp_filename))
-        # Remove temporary file
+        cmp_result = filecmp.cmp(output_filename, cmp_filename)
         os.remove(output_filename)
+
+        self.assertTrue(cmp_result)
+
 
 if __name__ == '__main__':
     unittest.main()

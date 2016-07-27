@@ -13,7 +13,7 @@ config_folder = os.path.abspath(
     os.path.join(os.path.dirname(__file__), os.pardir, 'config'))
 
 # Read Transvision's configuration file from ../config/config.ini
-# If not available use default a /storage folder so store data
+# If not available use default a /storage folder to store data
 config_file = os.path.join(config_folder, 'config.ini')
 if not os.path.isfile(config_file):
     print 'Configuration file /app/config/config.ini is missing. Default folders will be used.'
@@ -94,7 +94,7 @@ def get_strings(package, local_directory, strings_array):
 
 def create_directories_list(locale_repo, reference_repo, repository):
     ''' Create a list of folders to analyze '''
-    if repository.startswith('gaia') or repository == 'l20n_test':
+    if repository.startswith('gaia'):
         # Examine the entire folder
         dirs = ['']
     else:
@@ -145,11 +145,13 @@ def create_tmx_content(reference_repo, locale_repo, dirs):
         get_strings(l10nPackage_locale, directory, strings_locale)
         for entity in strings_reference:
             # Append string to tmx_content, using the format of a PHP array
-            # element
+            # element, but only if there's a translation available
             translation = escape(
-                strings_locale.get(entity, '')).encode('utf-8')
-            tmx_content.append("'{0}' => '{1}'".format(
-                entity.encode('utf-8'), translation))
+                strings_locale.get(entity, '@@missing@@')).encode('utf-8')
+            if translation != '@@missing@@':
+                tmx_content.append("'{0}' => '{1}'".format(
+                    entity.encode('utf-8'), translation))
+    tmx_content.sort()
 
     return tmx_content
 

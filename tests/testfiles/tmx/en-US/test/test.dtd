@@ -3,3 +3,4 @@
 <!ENTITY test2b "Test with escaped single 'quotes'">
 <!ENTITY test3 "To \&quot;Open multiple links\&quot;, please enable the \'Draw over other apps\' permission for &brandShortName;">
 <!ENTITY test_missing "This one won't be translated in the locale">
+<!ENTITY test_empty "">
