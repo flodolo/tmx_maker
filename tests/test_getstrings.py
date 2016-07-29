@@ -39,24 +39,5 @@ class TestGetStrings(unittest.TestCase):
         self.assertEqual(
             strings_locale['browser/chrome/browser/baseMenuOverlay.dtd:helpMenuWin.accesskey'].encode('utf-8'), 'H')
 
-    def testGetGaiaStrings(self):
-        locale_path = os.path.abspath(
-            os.path.join(os.path.dirname(__file__), 'testfiles', 'gaia', 'it'))
-
-        rcsClient = silme.io.Manager.get('file')
-        l10nPackage_locale = rcsClient.get_package(
-            locale_path, object_type='entitylist')
-
-        strings_locale = {}
-        get_strings(l10nPackage_locale, '', strings_locale)
-
-        self.assertEqual(len(strings_locale), 5)
-        self.assertTrue(
-            'distros/test_distros.properties:test_extra' in strings_locale)
-        self.assertTrue(
-            '/test_root.properties:test_root' in strings_locale)
-        self.assertEqual(
-            strings_locale['distros/test_distros.properties:test_extra'].encode('utf-8'), 'Extra string')
-
 if __name__ == '__main__':
     unittest.main()
