@@ -50,23 +50,6 @@ class TestCreateTMXContent(unittest.TestCase):
         self.assertFalse(
             "'test/test.dtd:test_missing' => 'This one won\\'t be translated in the locale'" in tmx_content)
 
-    def testCreateTMXGaia(self):
-        testfiles_path = os.path.abspath(
-            os.path.join(os.path.dirname(__file__), 'testfiles', 'gaia'))
-
-        locale_path = os.path.join(testfiles_path, 'it')
-        reference_path = os.path.join(testfiles_path, 'en-US')
-        tmx_content = create_tmx_content(
-            reference_path, locale_path, [''])
-
-        self.assertEqual(len(tmx_content), 3)
-        self.assertTrue(
-            "'/test_root.properties:test_root' => 'Dummy file'" in tmx_content)
-        self.assertTrue(
-            "'distros/test_distros.properties:test2' => 'Dummy file'" in tmx_content)
-        self.assertFalse(
-            "'unknown/test_unknown.properties:test3' => 'Dummy file'" in tmx_content)
-
     def testPHPOutput(self):
         testfiles_path = os.path.abspath(
             os.path.join(os.path.dirname(__file__), 'testfiles'))
