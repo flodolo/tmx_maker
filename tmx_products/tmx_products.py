@@ -1,6 +1,7 @@
 #!/usr/bin/python
 
 import argparse
+import json
 import os
 import subprocess
 import sys
@@ -44,143 +45,148 @@ sys.path.insert(0, os.path.join(compare_locales_path))
 
 try:
     from compare_locales import parser
-    #silme.format.Manager.register('dtd', 'properties', 'ini', 'inc')
 except ImportError:
     print 'Error importing compare-locales library'
     sys.exit(1)
 
 
-def escape(translation):
-    '''
-        Escape quotes and backslahes in translation. There are two issues:
-        * Internal Python escaping: the string "this is a \", has an internal
-          representation as "this is a \\".
-          Also, "\\ test" is equivalent to r"\ test" (raw string).
-        * We need to print these strings into a file, with the format of a
-          PHP array delimited by single quotes ('id' => 'translation'). Hence
-          we need to escape single quotes, but also escape backslashes.
-          "this is a 'test'" => "this is a \'test\'"
-          "this is a \'test\'" => "this is a \\\'test\\\'"
-    '''
-
-    # Escape slashes
-    escaped_translation = translation.replace('\\', '\\\\')
-    # Escape single quotes
-    escaped_translation = escaped_translation.replace('\'', '\\\'')
-
-    return escaped_translation
+class StringExtraction():
 
 
-def get_strings(package, local_directory, strings_array):
-    '''Store recursively translations from files in local_directory in a list of string'''
-    for item in package:
-        if (type(item[1]) is not silme.core.structure.Blob) and not(isinstance(item[1], silme.core.Package)):
-            for entity in item[1]:
-                # String ID is the format folder/filename:entity. Make
-                # sure to remove a starting '/' from the folder's name
-                string_id = u'{0}/{1}:{2}'.format(
-                    local_directory.lstrip('/'), item[0], entity)
-                strings_array[string_id] = item[1][entity].get_value()
-        elif (isinstance(item[1], silme.core.Package)):
-            if (item[0] != 'en-US') and (item[0] != 'locales'):
-                get_strings(item[1], local_directory + '/' + item[0],
-                            strings_array)
-            else:
-                get_strings(item[1], local_directory, strings_array)
+    def __init__(self, storage_path, locale, reference_locale, repository_name):
+        ''' Initialize object '''
+
+        self.supported_formats = ['.dtd', '.properties', '.ini', '.inc']
+        self.storage_path = storage_path
+        self.file_list = []
+        self.translations = {}
+        self.repository_name = repository_name
+        self.locale = locale
+        self.reference_locale = reference_locale
+
+        # Define the locale storage filename
+        self.storage_file = os.path.join(
+            storage_path, locale,
+            'cache_{0}_{1}'.format(locale, repository_name))
+
+        self.reference_storage_file = os.path.join(
+            storage_path, reference_locale,
+            'cache_{0}_{1}'.format(reference_locale, repository_name))
 
 
-def create_directories_list(locale_repo, reference_repo, repository):
-    ''' Create a list of folders to analyze '''
-    dirs_locale = os.listdir(locale_repo)
-    dirs_reference = [
-        'browser', 'calendar', 'chat', 'devtools', 'dom', 'editor',
-        'extensions', 'mail', 'mobile', 'netwerk', 'other-licenses',
-        'security', 'services', 'suite', 'toolkit'
-    ]
-    dirs = filter(lambda x: x in dirs_locale, dirs_reference)
+    def setRepositoryPath(self, path):
+        ''' Set path to repository '''
 
-    return dirs
+        self.repository_path = path
 
 
-def create_tmx_content(reference_repo, locale_repo, dirs):
-    ''' Extract strings from repository, return them as a list of PHP array
-        elements. '''
-    tmx_content = []
-    for directory in dirs:
-        path_reference = os.path.join(reference_repo, directory)
-        path_locale = os.path.join(locale_repo, directory)
+    def extractFileList(self):
+        ''' Extract the list of supported files'''
 
-        rcsClient = silme.io.Manager.get('file')
-        try:
-            l10nPackage_reference = rcsClient.get_package(
-                path_reference, object_type='entitylist')
-        except Exception as e:
-            print 'Silme couldn\'t extract data for', path_reference
-            print e
-            continue
-
-        if not os.path.isdir(path_locale):
-            # Folder doesn't exist for this locale, don't log a warning,
-            # just continue to the next folder.
-            continue
-
-        try:
-            l10nPackage_locale = rcsClient.get_package(
-                path_locale, object_type='entitylist')
-        except Exception as e:
-            print 'Silme couldn\'t extract data for', path_locale
-            print e
-            continue
-
-        strings_reference = {}
-        strings_locale = {}
-        get_strings(l10nPackage_reference, directory, strings_reference)
-        get_strings(l10nPackage_locale, directory, strings_locale)
-        for entity in strings_reference:
-            # Append string to tmx_content, using the format of a PHP array
-            # element, but only if there's a translation available
-            translation = escape(
-                strings_locale.get(entity, '@@missing@@')).encode('utf-8')
-            if translation != '@@missing@@':
-                tmx_content.append("'{0}' => '{1}'".format(
-                    entity.encode('utf-8'), translation))
-    tmx_content.sort()
-
-    return tmx_content
+        for root, dirs, files in os.walk(self.repository_path, followlinks=True):
+            for file in files:
+                for supported_format in self.supported_formats:
+                    if file.endswith(supported_format):
+                        self.file_list.append(os.path.join(root, file))
+        self.file_list.sort()
 
 
-def write_php_file(filename, tmx_content):
-    ''' Write TMX content as a PHP array on file '''
-    target_locale_file = open(filename, 'w')
-    target_locale_file.write('<?php\n$tmx = [\n')
-    for line in tmx_content:
-        target_locale_file.write(line + ',\n')
-    target_locale_file.write('];\n')
-    target_locale_file.close()
+    def extractStrings(self):
+        ''' Extract strings from the files '''
+        self.extractFileList()
+
+        for file_name in self.file_list:
+            file_extension = os.path.splitext(file_name)[1]
+
+            file_parser = parser.getParser(file_extension)
+            file_parser.readFile(file_name)
+            entities, map = file_parser.parse()
+
+            for entity in entities:
+                relative_path = file_name[len(self.repository_path) + 1:]
+                # Hack to work around Transvision symlink mess
+                relative_path = relative_path.replace('locales/en-US/en-US/', '')
+                string_id = '{0}:{1}'.format(relative_path, entity)
+                self.translations[string_id] = entity.val
+
+
+        # Remove extra strings from locale
+        if self.reference_locale != self.locale:
+            # Read the JSON cache for reference locale
+            with open(self.reference_storage_file + '.json') as f:
+                reference_strings = json.load(f)
+            f.close()
+
+            for string_id in self.translations.keys():
+                if string_id not in reference_strings:
+                    del(self.translations[string_id])
+
+        # Store translations in JSON format
+        f = open(self.storage_file + '.json', 'w')
+        f.write(json.dumps(self.translations, sort_keys=True))
+        f.close()
+
+        # Store translations in PHP format
+        self.write_php_file()
+
+    def escape(self, translation):
+        '''
+            Escape quotes and backslahes in translation. There are two issues:
+            * Internal Python escaping: the string "this is a \", has an internal
+              representation as "this is a \\".
+              Also, "\\ test" is equivalent to r"\ test" (raw string).
+            * We need to print these strings into a file, with the format of a
+              PHP array delimited by single quotes ('id' => 'translation'). Hence
+              we need to escape single quotes, but also escape backslashes.
+              "this is a 'test'" => "this is a \'test\'"
+              "this is a \'test\'" => "this is a \\\'test\\\'"
+        '''
+
+        # Escape slashes
+        escaped_translation = translation.replace('\\', '\\\\')
+        # Escape single quotes
+        escaped_translation = escaped_translation.replace('\'', '\\\'')
+
+        return escaped_translation
+
+
+    def write_php_file(self):
+        ''' Write TMX content as a PHP array on file '''
+
+        string_ids = self.translations.keys()
+        string_ids.sort()
+
+        f = open(self.storage_file + '.php', 'w')
+        f.write('<?php\n$tmx = [\n')
+        for string_id in string_ids:
+            translation = self.escape(self.translations[string_id].encode('utf-8'))
+            f.write("'{0}' => '{1}',\n".format(string_id, translation))
+        f.write('];\n')
+        f.close()
 
 
 def main():
     # Read command line input parameters
     parser = argparse.ArgumentParser()
-    parser.add_argument('locale_repo', help='Path to locale files')
-    parser.add_argument('reference_repo', help='Path to reference files')
+    parser.add_argument('repo_path', help='Path to locale files')
     parser.add_argument('locale_code', help='Locale language code')
     parser.add_argument('reference_code', help='Reference language code')
-    parser.add_argument('repository', help='Repository name')
+    parser.add_argument('repository_name', help='Repository name')
     args = parser.parse_args()
 
-    dirs = create_directories_list(
-        args.reference_repo, args.locale_repo, args.repository
-    )
-    tmx_content = create_tmx_content(
-        args.reference_repo, args.locale_repo, dirs)
+    extracted_strings = StringExtraction(storage_path, args.locale_code, args.reference_code, args.repository_name)
+    extracted_strings.setRepositoryPath(args.repo_path.rstrip('/'))
+    extracted_strings.extractStrings()
 
+
+    '''
     # Store the actual file on disk
     filename_locale = os.path.join(
         os.path.join(storage_path, args.locale_code),
         'cache_{0}_{1}.php'.format(args.locale_code, args.repository)
     )
     write_php_file(filename_locale, tmx_content)
+    '''
 
 
 if __name__ == '__main__':
