@@ -51,7 +51,6 @@ except ImportError:
 
 class StringExtraction():
 
-
     def __init__(self, storage_path, locale, reference_locale, repository_name):
         ''' Initialize object '''
 
@@ -72,12 +71,10 @@ class StringExtraction():
             storage_path, reference_locale,
             'cache_{0}_{1}'.format(reference_locale, repository_name))
 
-
     def setRepositoryPath(self, path):
         ''' Set path to repository '''
 
         self.repository_path = path
-
 
     def extractFileList(self):
         ''' Extract the list of supported files'''
@@ -88,7 +85,6 @@ class StringExtraction():
                     if file.endswith(supported_format):
                         self.file_list.append(os.path.join(root, file))
         self.file_list.sort()
-
 
     def extractStrings(self):
         ''' Extract strings from all files '''
@@ -104,10 +100,10 @@ class StringExtraction():
             for entity in entities:
                 relative_path = file_name[len(self.repository_path) + 1:]
                 # Hack to work around Transvision symlink mess
-                relative_path = relative_path.replace('locales/en-US/en-US/', '')
+                relative_path = relative_path.replace(
+                    'locales/en-US/en-US/', '')
                 string_id = '{0}:{1}'.format(relative_path, entity)
                 self.translations[string_id] = entity.val
-
 
         # Remove extra strings from locale
         if self.reference_locale != self.locale:
@@ -121,7 +117,6 @@ class StringExtraction():
                 for string_id in self.translations.keys():
                     if string_id not in reference_strings:
                         del(self.translations[string_id])
-
 
     def storeTranslations(self):
         ''' Store translations on file (JSON, PHP) '''
@@ -137,11 +132,11 @@ class StringExtraction():
         f = open(self.storage_file + '.php', 'w')
         f.write('<?php\n$tmx = [\n')
         for string_id in string_ids:
-            translation = self.escape(self.translations[string_id].encode('utf-8'))
+            translation = self.escape(
+                self.translations[string_id].encode('utf-8'))
             f.write("'{0}' => '{1}',\n".format(string_id, translation))
         f.write('];\n')
         f.close()
-
 
     def escape(self, translation):
         '''
@@ -173,7 +168,8 @@ def main():
     parser.add_argument('repository_name', help='Repository name')
     args = parser.parse_args()
 
-    extracted_strings = StringExtraction(storage_path, args.locale_code, args.reference_code, args.repository_name)
+    extracted_strings = StringExtraction(
+        storage_path, args.locale_code, args.reference_code, args.repository_name)
     extracted_strings.setRepositoryPath(args.repo_path.rstrip('/'))
     extracted_strings.extractStrings()
     extracted_strings.storeTranslations()
