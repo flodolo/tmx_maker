@@ -17,10 +17,9 @@ config_folder = os.path.abspath(
 config_file = os.path.join(config_folder, 'config.ini')
 if not os.path.isfile(config_file):
     print 'Configuration file /app/config/config.ini is missing. Default folders will be used.'
-    storage_path = os.path.abspath(
+    root_folder = os.path.abspath(
         os.path.join(os.path.dirname(__file__), os.pardir))
-    library_path = os.path.join(storage_path, 'libraries')
-    storage_path = os.path.join(storage_path, 'tests', 'testfiles', 'output')
+    library_path = os.path.join(root_folder, 'libraries')
 else:
     config_parser = SafeConfigParser()
     config_parser.read(config_file)
@@ -92,7 +91,7 @@ class StringExtraction():
 
 
     def extractStrings(self):
-        ''' Extract strings from the files '''
+        ''' Extract strings from all files '''
         self.extractFileList()
 
         for file_name in self.file_list:
@@ -112,22 +111,37 @@ class StringExtraction():
 
         # Remove extra strings from locale
         if self.reference_locale != self.locale:
-            # Read the JSON cache for reference locale
-            with open(self.reference_storage_file + '.json') as f:
-                reference_strings = json.load(f)
-            f.close()
+            # Read the JSON cache for reference locale if available
+            file_name = self.reference_storage_file + '.json'
+            if os.path.isfile(file_name):
+                with open(self.reference_storage_file + '.json') as f:
+                    reference_strings = json.load(f)
+                f.close()
 
-            for string_id in self.translations.keys():
-                if string_id not in reference_strings:
-                    del(self.translations[string_id])
+                for string_id in self.translations.keys():
+                    if string_id not in reference_strings:
+                        del(self.translations[string_id])
 
+
+    def storeTranslations(self):
+        ''' Store translations on file (JSON, PHP) '''
         # Store translations in JSON format
         f = open(self.storage_file + '.json', 'w')
         f.write(json.dumps(self.translations, sort_keys=True))
         f.close()
 
-        # Store translations in PHP format
-        self.write_php_file()
+        # Store translations in PHP format (array)
+        string_ids = self.translations.keys()
+        string_ids.sort()
+
+        f = open(self.storage_file + '.php', 'w')
+        f.write('<?php\n$tmx = [\n')
+        for string_id in string_ids:
+            translation = self.escape(self.translations[string_id].encode('utf-8'))
+            f.write("'{0}' => '{1}',\n".format(string_id, translation))
+        f.write('];\n')
+        f.close()
+
 
     def escape(self, translation):
         '''
@@ -150,21 +164,6 @@ class StringExtraction():
         return escaped_translation
 
 
-    def write_php_file(self):
-        ''' Write TMX content as a PHP array on file '''
-
-        string_ids = self.translations.keys()
-        string_ids.sort()
-
-        f = open(self.storage_file + '.php', 'w')
-        f.write('<?php\n$tmx = [\n')
-        for string_id in string_ids:
-            translation = self.escape(self.translations[string_id].encode('utf-8'))
-            f.write("'{0}' => '{1}',\n".format(string_id, translation))
-        f.write('];\n')
-        f.close()
-
-
 def main():
     # Read command line input parameters
     parser = argparse.ArgumentParser()
@@ -177,16 +176,7 @@ def main():
     extracted_strings = StringExtraction(storage_path, args.locale_code, args.reference_code, args.repository_name)
     extracted_strings.setRepositoryPath(args.repo_path.rstrip('/'))
     extracted_strings.extractStrings()
-
-
-    '''
-    # Store the actual file on disk
-    filename_locale = os.path.join(
-        os.path.join(storage_path, args.locale_code),
-        'cache_{0}_{1}.php'.format(args.locale_code, args.repository)
-    )
-    write_php_file(filename_locale, tmx_content)
-    '''
+    extracted_strings.storeTranslations()
 
 
 if __name__ == '__main__':
