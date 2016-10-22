@@ -1,7 +1,6 @@
 #!/usr/bin/python
 
 import argparse
-import datetime
 import os
 import subprocess
 import sys
@@ -27,29 +26,27 @@ else:
     library_path = config_parser.get('config', 'libraries')
     storage_path = os.path.join(config_parser.get('config', 'root'), 'TMX')
 
-# Import Silme library (http://hg.mozilla.org/l10n/silme/)
-silme_path = os.path.join(library_path, 'silme')
+# Import compare-locales library (http://hg.mozilla.org/l10n/compare-locales/)
+compare_locales_path = os.path.join(library_path, 'compare-locales')
 
-if not os.path.isdir(silme_path):
+if not os.path.isdir(compare_locales_path):
     try:
-        print 'Cloning silme...'
+        print 'Cloning compare-locales...'
         cmd_status = subprocess.check_output(
-            ['hg', 'clone', 'https://hg.mozilla.org/l10n/silme',
-                silme_path, '-u', 'silme-0.8.0'],
+            ['hg', 'clone', 'https://hg.mozilla.org/l10n/compare-locales',
+                compare_locales_path, '-u', 'RELEASE_1_1'],
             stderr=subprocess.STDOUT,
             shell=False)
         print cmd_status
     except Exception as e:
         print e
+sys.path.insert(0, os.path.join(compare_locales_path))
 
-sys.path.append(os.path.join(silme_path, 'lib'))
 try:
-    import silme.core
-    import silme.io
-    import silme.format
-    silme.format.Manager.register('dtd', 'properties', 'ini', 'inc')
+    from compare_locales import parser
+    #silme.format.Manager.register('dtd', 'properties', 'ini', 'inc')
 except ImportError:
-    print 'Error importing Silme library'
+    print 'Error importing compare-locales library'
     sys.exit(1)
 
 
