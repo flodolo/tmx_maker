@@ -54,15 +54,19 @@ class StringExtraction():
     def __init__(self, storage_path, locale, reference_locale, repository_name):
         ''' Initialize object '''
 
+        # Set defaults
         self.supported_formats = ['.dtd', '.properties', '.ini', '.inc']
-        self.storage_path = storage_path
+        self.storage_mode = ''
+        self.storage_prefix = ''
         self.file_list = []
         self.translations = {}
-        self.repository_name = repository_name
+
+        # Set instance variables
+        self.storage_path = storage_path
         self.locale = locale
         self.reference_locale = reference_locale
 
-        # Define the locale storage filename
+        # Define the locale storage filenames
         self.storage_file = os.path.join(
             storage_path, locale,
             'cache_{0}_{1}'.format(locale, repository_name))
@@ -74,10 +78,18 @@ class StringExtraction():
     def setRepositoryPath(self, path):
         ''' Set path to repository '''
 
-        self.repository_path = path
+        # Strip '/' from storage_prefix
+        self.repository_path = path.rstrip(os.path.sep)
+
+    def setStorageMode(self, mode, prefix):
+        ''' Set storage mode and prefix. Currently supported '''
+
+        self.storage_mode = mode
+        # Strip '/' from storage_prefix
+        self.storage_prefix = prefix.rstrip(os.path.sep)
 
     def extractFileList(self):
-        ''' Extract the list of supported files'''
+        ''' Extract the list of supported files '''
 
         for root, dirs, files in os.walk(self.repository_path, followlinks=True):
             for file in files:
@@ -86,8 +98,33 @@ class StringExtraction():
                         self.file_list.append(os.path.join(root, file))
         self.file_list.sort()
 
+    def getRelativePath(self, file_name):
+        ''' Get the relative path of a filename, prepend prefix_storage if defined '''
+
+        relative_path = file_name[len(self.repository_path) + 1:]
+        # Prepend storage_prefix if defined
+        if self.storage_prefix != '':
+            relative_path = '{0}/{1}'.format(self.storage_prefix,
+                                             relative_path)
+        # Hack to work around Transvision symlink mess
+        relative_path = relative_path.replace(
+            'locales/en-US/en-US/', '')
+
+        return relative_path
+
     def extractStrings(self):
         ''' Extract strings from all files '''
+
+        # Is storage_mode is append, I need to read existing translations
+        # before overriding them
+        if self.storage_mode == 'append':
+            file_name = self.storage_file + '.json'
+            if os.path.isfile(file_name):
+                with open(file_name) as f:
+                    self.translations = json.load(f)
+                f.close()
+
+        # Create a list of files to analyze
         self.extractFileList()
 
         for file_name in self.file_list:
@@ -98,11 +135,8 @@ class StringExtraction():
             entities, map = file_parser.parse()
 
             for entity in entities:
-                relative_path = file_name[len(self.repository_path) + 1:]
-                # Hack to work around Transvision symlink mess
-                relative_path = relative_path.replace(
-                    'locales/en-US/en-US/', '')
-                string_id = '{0}:{1}'.format(relative_path, entity)
+                string_id = '{0}:{1}'.format(
+                    self.getRelativePath(file_name), entity)
                 self.translations[string_id] = entity.val
 
         # Remove extra strings from locale
@@ -110,7 +144,7 @@ class StringExtraction():
             # Read the JSON cache for reference locale if available
             file_name = self.reference_storage_file + '.json'
             if os.path.isfile(file_name):
-                with open(self.reference_storage_file + '.json') as f:
+                with open(file_name) as f:
                     reference_strings = json.load(f)
                 f.close()
 
@@ -120,6 +154,7 @@ class StringExtraction():
 
     def storeTranslations(self):
         ''' Store translations on file (JSON, PHP) '''
+
         # Store translations in JSON format
         f = open(self.storage_file + '.json', 'w')
         f.write(json.dumps(self.translations, sort_keys=True))
@@ -166,11 +201,19 @@ def main():
     parser.add_argument('locale_code', help='Locale language code')
     parser.add_argument('reference_code', help='Reference language code')
     parser.add_argument('repository_name', help='Repository name')
+    parser.add_argument('storage_mode', nargs='?',
+                        help='If set to \'append\', translations will be added to an existing cache file', default='')
+    parser.add_argument('storage_prefix', nargs='?',
+                        help='This prefix will be prependended to the identified path in string IDs (e.g. extensions/irc for Chatzilla)', default='')
     args = parser.parse_args()
 
     extracted_strings = StringExtraction(
         storage_path, args.locale_code, args.reference_code, args.repository_name)
+
     extracted_strings.setRepositoryPath(args.repo_path.rstrip('/'))
+    if args.storage_mode == 'append':
+        extracted_strings.setStorageMode('append', args.storage_prefix)
+
     extracted_strings.extractStrings()
     extracted_strings.storeTranslations()
 

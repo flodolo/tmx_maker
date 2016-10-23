@@ -53,6 +53,46 @@ class TestStringExtraction(unittest.TestCase):
         for string, result in extraction.translations.iteritems():
             self.assertEqual(extraction.escape(string), result)
 
+    def testRelativePath(self):
+        extraction = tmx_products.tmx_products.StringExtraction(
+            self.storage_path, '', '', '')
+
+        extraction.setRepositoryPath('/home/test')
+        paths = {
+            '/home/test/browser/branding/official/brand.dtd': 'browser/branding/official/brand.dtd',
+            '/home/test/browser/branding/brand.dtd': 'browser/branding/brand.dtd',
+            '/home/test/browser/brand.dtd': 'browser/brand.dtd',
+            '/home/test/browser/locales/en-US/en-US/chrome/browser/browser.dtd': 'browser/chrome/browser/browser.dtd',
+            '/home/test/toolkit/locales/en-US/en-US/defines.inc': 'toolkit/defines.inc',
+        }
+        for path, result in paths.iteritems():
+            self.assertEqual(extraction.getRelativePath(path), result)
+
+        # I should get the same results if path ends with a /
+        extraction.setRepositoryPath('/home/test/')
+        paths = {
+            '/home/test/browser/branding/official/brand.dtd': 'browser/branding/official/brand.dtd',
+            '/home/test/browser/branding/brand.dtd': 'browser/branding/brand.dtd',
+            '/home/test/browser/brand.dtd': 'browser/brand.dtd',
+            '/home/test/browser/locales/en-US/en-US/chrome/browser/browser.dtd': 'browser/chrome/browser/browser.dtd',
+            '/home/test/toolkit/locales/en-US/en-US/defines.inc': 'toolkit/defines.inc',
+        }
+        for path, result in paths.iteritems():
+            self.assertEqual(extraction.getRelativePath(path), result)
+
+        # I should get the same results if path ends with a /
+        extraction.setRepositoryPath('/home/test')
+        extraction.setStorageMode('append', 'foo/bar')
+        paths = {
+            '/home/test/browser/branding/official/brand.dtd': 'foo/bar/browser/branding/official/brand.dtd',
+            '/home/test/browser/branding/brand.dtd': 'foo/bar/browser/branding/brand.dtd',
+            '/home/test/browser/brand.dtd': 'foo/bar/browser/brand.dtd',
+            '/home/test/browser/locales/en-US/en-US/chrome/browser/browser.dtd': 'foo/bar/browser/chrome/browser/browser.dtd',
+            '/home/test/toolkit/locales/en-US/en-US/defines.inc': 'foo/bar/toolkit/defines.inc',
+        }
+        for path, result in paths.iteritems():
+            self.assertEqual(extraction.getRelativePath(path), result)
+
     def testOutput(self):
         repo_path = os.path.join(self.testfiles_path, 'tmx', 'en-US')
         extraction = tmx_products.tmx_products.StringExtraction(
@@ -90,6 +130,45 @@ class TestStringExtraction(unittest.TestCase):
                                'output', 'en-US', 'cache_en-US_test.php'))
         os.remove(os.path.join(self.testfiles_path, 'output',
                                'en-US', 'cache_en-US_test.json'))
+
+        self.assertTrue(cmp_result_php)
+        self.assertTrue(cmp_result_json)
+
+    def testOutputAppend(self):
+        repo_path = os.path.join(self.testfiles_path, 'tmx', 'en-US')
+        extraction = tmx_products.tmx_products.StringExtraction(
+            self.storage_path, 'en-US', 'en-US', 'appendtest')
+        extraction.setRepositoryPath(repo_path)
+        extraction.extractStrings()
+        extraction.storeTranslations()
+
+        # Do a new extraction, but append to existing translations
+        repo_path = os.path.join(self.testfiles_path, 'tmx', 'en-US', 'mail')
+        extraction = tmx_products.tmx_products.StringExtraction(
+            self.storage_path, 'en-US', 'en-US', 'appendtest')
+        extraction.setRepositoryPath(repo_path)
+        extraction.setStorageMode('append', 'foo/bar/')
+        extraction.extractStrings()
+        extraction.storeTranslations()
+
+        # Store comparison and remove file before running the test
+        output_filename = os.path.join(
+            self.testfiles_path, 'output', 'en-US', 'cache_en-US_appendtest.php')
+        cmp_filename = os.path.join(
+            self.testfiles_path, 'output', 'cmp_output_append.php')
+        cmp_result_php = filecmp.cmp(output_filename, cmp_filename)
+
+        output_filename = os.path.join(
+            self.testfiles_path, 'output', 'en-US', 'cache_en-US_appendtest.json')
+        cmp_filename = os.path.join(
+            self.testfiles_path, 'output', 'cmp_output_append.json')
+        cmp_result_json = filecmp.cmp(output_filename, cmp_filename)
+
+        # Remove files
+        os.remove(os.path.join(self.testfiles_path,
+                               'output', 'en-US', 'cache_en-US_appendtest.php'))
+        os.remove(os.path.join(self.testfiles_path, 'output',
+                               'en-US', 'cache_en-US_appendtest.json'))
 
         self.assertTrue(cmp_result_php)
         self.assertTrue(cmp_result_json)
