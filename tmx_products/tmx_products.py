@@ -13,10 +13,11 @@ config_folder = os.path.abspath(
     os.path.join(os.path.dirname(__file__), os.pardir, 'config'))
 
 # Read Transvision's configuration file from ../config/config.ini
-# If not available use default a /storage folder to store data
+# If not available use a default storage folder to store data
 config_file = os.path.join(config_folder, 'config.ini')
 if not os.path.isfile(config_file):
-    print 'Configuration file /app/config/config.ini is missing. Default folders will be used.'
+    print('Configuration file /app/config/config.ini is missing. '
+          'Default settings will be used.')
     root_folder = os.path.abspath(
         os.path.join(os.path.dirname(__file__), os.pardir))
     library_path = os.path.join(root_folder, 'libraries')
@@ -26,26 +27,26 @@ else:
     library_path = config_parser.get('config', 'libraries')
     storage_path = os.path.join(config_parser.get('config', 'root'), 'TMX')
 
-# Import compare-locales library (http://hg.mozilla.org/l10n/compare-locales/)
+# Import compare-locales (http://hg.mozilla.org/l10n/compare-locales/)
+# and add it to the system's path
 compare_locales_path = os.path.join(library_path, 'compare-locales')
-
 if not os.path.isdir(compare_locales_path):
     try:
-        print 'Cloning compare-locales...'
+        print('Cloning compare-locales...')
         cmd_status = subprocess.check_output(
             ['hg', 'clone', 'https://hg.mozilla.org/l10n/compare-locales',
                 compare_locales_path, '-u', 'RELEASE_1_1'],
             stderr=subprocess.STDOUT,
             shell=False)
-        print cmd_status
+        print(cmd_status)
     except Exception as e:
-        print e
+        print(e)
 sys.path.insert(0, os.path.join(compare_locales_path))
 
 try:
     from compare_locales import parser
 except ImportError:
-    print 'Error importing compare-locales library'
+    print('Error importing compare-locales library')
     sys.exit(1)
 
 
@@ -78,14 +79,14 @@ class StringExtraction():
     def setRepositoryPath(self, path):
         ''' Set path to repository '''
 
-        # Strip '/' from storage_prefix
+        # Strip trailing '/' from repository path
         self.repository_path = path.rstrip(os.path.sep)
 
     def setStorageMode(self, mode, prefix):
         ''' Set storage mode and prefix. Currently supported '''
 
         self.storage_mode = mode
-        # Strip '/' from storage_prefix
+        # Strip trailing '/' from storage_prefix
         self.storage_prefix = prefix.rstrip(os.path.sep)
 
     def extractFileList(self):
@@ -99,7 +100,8 @@ class StringExtraction():
         self.file_list.sort()
 
     def getRelativePath(self, file_name):
-        ''' Get the relative path of a filename, prepend prefix_storage if defined '''
+        ''' Get the relative path of a filename, prepend prefix_storage if
+        defined '''
 
         relative_path = file_name[len(self.repository_path) + 1:]
         # Prepend storage_prefix if defined
