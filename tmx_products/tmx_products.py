@@ -2,11 +2,13 @@
 
 import argparse
 import json
+import logging
 import os
 import subprocess
 import sys
 from ConfigParser import SafeConfigParser
 
+logging.basicConfig()
 # Get absolute path of ../config from the current script location (not the
 # current folder)
 config_folder = os.path.abspath(
