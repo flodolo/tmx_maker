@@ -137,7 +137,8 @@ class StringExtraction():
             for entity in entities:
                 string_id = '{0}:{1}'.format(
                     self.getRelativePath(file_name), entity)
-                self.translations[string_id] = entity.val
+                if not isinstance(entity, parser.Junk):
+                    self.translations[string_id] = entity.raw_val
 
         # Remove extra strings from locale
         if self.reference_locale != self.locale:
