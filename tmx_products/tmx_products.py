@@ -43,7 +43,7 @@ if not os.path.isdir(compare_locales_path):
         print(cmd_status)
     except Exception as e:
         print(e)
-sys.path.insert(0, os.path.join(compare_locales_path))
+sys.path.insert(0, compare_locales_path)
 
 try:
     from compare_locales import parser
