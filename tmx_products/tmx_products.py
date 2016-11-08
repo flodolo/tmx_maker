@@ -37,7 +37,7 @@ if not os.path.isdir(compare_locales_path):
         print('Cloning compare-locales...')
         cmd_status = subprocess.check_output(
             ['hg', 'clone', 'https://hg.mozilla.org/l10n/compare-locales',
-                compare_locales_path, '-u', 'RELEASE_1_1'],
+                compare_locales_path, '-u', 'RELEASE_1_2'],
             stderr=subprocess.STDOUT,
             shell=False)
         print(cmd_status)
@@ -136,13 +136,16 @@ class StringExtraction():
 
             file_parser = parser.getParser(file_extension)
             file_parser.readFile(file_name)
-            entities, map = file_parser.parse()
-
-            for entity in entities:
-                string_id = '{0}:{1}'.format(
-                    self.getRelativePath(file_name), entity)
-                if not isinstance(entity, parser.Junk):
-                    self.translations[string_id] = entity.raw_val
+            try:
+                entities, map = file_parser.parse()
+                for entity in entities:
+                    string_id = '{0}:{1}'.format(
+                        self.getRelativePath(file_name), entity)
+                    if not isinstance(entity, parser.Junk):
+                        self.translations[string_id] = entity.raw_val
+            except Exception as e:
+                print 'Error parsing file: {0}'.format(file_name)
+                print e
 
         # Remove extra strings from locale
         if self.reference_locale != self.locale:
