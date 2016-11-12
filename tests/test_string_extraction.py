@@ -99,14 +99,14 @@ class TestStringExtraction(unittest.TestCase):
             self.storage_path, 'en-US', 'en-US', 'test')
         extraction.setRepositoryPath(repo_path)
         extraction.extractStrings()
-        extraction.storeTranslations()
+        extraction.storeTranslations('')
 
         repo_path = os.path.join(self.testfiles_path, 'tmx', 'it')
         extraction = tmx_products.tmx_products.StringExtraction(
             self.storage_path, 'it', 'en-US', 'test')
         extraction.setRepositoryPath(repo_path)
         extraction.extractStrings()
-        extraction.storeTranslations()
+        extraction.storeTranslations('')
 
         # Store comparison and remove file before running the test
         output_filename = os.path.join(
@@ -140,7 +140,7 @@ class TestStringExtraction(unittest.TestCase):
             self.storage_path, 'en-US', 'en-US', 'appendtest')
         extraction.setRepositoryPath(repo_path)
         extraction.extractStrings()
-        extraction.storeTranslations()
+        extraction.storeTranslations('')
 
         # Do a new extraction, but append to existing translations
         repo_path = os.path.join(self.testfiles_path, 'tmx', 'en-US', 'mail')
@@ -149,7 +149,7 @@ class TestStringExtraction(unittest.TestCase):
         extraction.setRepositoryPath(repo_path)
         extraction.setStorageMode('append', 'foo/bar/')
         extraction.extractStrings()
-        extraction.storeTranslations()
+        extraction.storeTranslations('')
 
         # Store comparison and remove file before running the test
         output_filename = os.path.join(

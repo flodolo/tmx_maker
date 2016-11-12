@@ -160,26 +160,32 @@ class StringExtraction():
                     if string_id not in reference_strings:
                         del(self.translations[string_id])
 
-    def storeTranslations(self):
-        ''' Store translations on file (JSON, PHP) '''
+    def storeTranslations(self, output_format):
+        '''
+            Store translations on file.
+            If no format is specified, both JSON and PHP formats will
+            be stored on file.
+        '''
 
-        # Store translations in JSON format
-        f = open(self.storage_file + '.json', 'w')
-        f.write(json.dumps(self.translations, sort_keys=True))
-        f.close()
+        if output_format != 'php':
+            # Store translations in JSON format
+            f = open(self.storage_file + '.json', 'w')
+            f.write(json.dumps(self.translations, sort_keys=True))
+            f.close()
 
-        # Store translations in PHP format (array)
-        string_ids = self.translations.keys()
-        string_ids.sort()
+        if output_format != 'json':
+            # Store translations in PHP format (array)
+            string_ids = self.translations.keys()
+            string_ids.sort()
 
-        f = open(self.storage_file + '.php', 'w')
-        f.write('<?php\n$tmx = [\n')
-        for string_id in string_ids:
-            translation = self.escape(
-                self.translations[string_id].encode('utf-8'))
-            f.write("'{0}' => '{1}',\n".format(string_id, translation))
-        f.write('];\n')
-        f.close()
+            f = open(self.storage_file + '.php', 'w')
+            f.write('<?php\n$tmx = [\n')
+            for string_id in string_ids:
+                translation = self.escape(
+                    self.translations[string_id].encode('utf-8'))
+                f.write("'{0}' => '{1}',\n".format(string_id, translation))
+            f.write('];\n')
+            f.close()
 
     def escape(self, translation):
         '''
@@ -209,6 +215,8 @@ def main():
     parser.add_argument('locale_code', help='Locale language code')
     parser.add_argument('reference_code', help='Reference language code')
     parser.add_argument('repository_name', help='Repository name')
+    parser.add_argument('--output', nargs='?', type=str, choices=['json', 'php'],
+                        help='Store only one type of output.', default='')
     parser.add_argument('storage_mode', nargs='?',
                         help='If set to \'append\', translations will be added to an existing cache file', default='')
     parser.add_argument('storage_prefix', nargs='?',
@@ -223,7 +231,7 @@ def main():
         extracted_strings.setStorageMode('append', args.storage_prefix)
 
     extracted_strings.extractStrings()
-    extracted_strings.storeTranslations()
+    extracted_strings.storeTranslations(args.output)
 
 
 if __name__ == '__main__':
