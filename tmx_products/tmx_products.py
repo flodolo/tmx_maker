@@ -139,8 +139,8 @@ class StringExtraction():
             try:
                 entities, map = file_parser.parse()
                 for entity in entities:
-                    string_id = '{0}:{1}'.format(
-                        self.getRelativePath(file_name), entity)
+                    string_id = u'{0}:{1}'.format(
+                        self.getRelativePath(file_name), unicode(entity))
                     if not isinstance(entity, parser.Junk):
                         self.translations[string_id] = entity.raw_val
             except Exception as e:
@@ -183,7 +183,9 @@ class StringExtraction():
             for string_id in string_ids:
                 translation = self.escape(
                     self.translations[string_id].encode('utf-8'))
-                f.write("'{0}' => '{1}',\n".format(string_id, translation))
+                string_id = self.escape(string_id.encode('utf-8'))
+                line = "'{0}' => '{1}',\n".format(string_id, translation)
+                f.write(line)
             f.write('];\n')
             f.close()
 
