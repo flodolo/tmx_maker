@@ -37,7 +37,7 @@ if not os.path.isdir(compare_locales_path):
         print('Cloning compare-locales...')
         cmd_status = subprocess.check_output(
             ['hg', 'clone', 'https://hg.mozilla.org/l10n/compare-locales',
-                compare_locales_path, '-u', 'RELEASE_1_2'],
+                compare_locales_path, '-u', 'RELEASE_1_2_1'],
             stderr=subprocess.STDOUT,
             shell=False)
         print(cmd_status)
