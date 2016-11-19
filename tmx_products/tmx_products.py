@@ -119,7 +119,7 @@ class StringExtraction():
     def extractStrings(self):
         ''' Extract strings from all files '''
 
-        # Is storage_mode is append, I need to read existing translations
+        # If storage_mode is append, read existing translations (if available)
         # before overriding them
         if self.storage_mode == 'append':
             file_name = self.storage_file + '.json'
