@@ -24,13 +24,17 @@ class TestStringExtraction(unittest.TestCase):
         extraction.extractStrings()
 
         strings_locale = extraction.translations
-        self.assertEqual(len(strings_locale), 19)
+        self.assertEqual(len(strings_locale), 20)
         self.assertTrue(
             'browser/branding/official/brand.dtd:brandFullName' in strings_locale)
         self.assertTrue(
             'browser/branding/official/brand.properties:brandShortName' in strings_locale)
         self.assertTrue(
             'browser/defines.inc:MOZ_LANGPACK_CREATOR' in strings_locale)
+        self.assertTrue(
+            'dom/chrome/appstrings.properties:zeroTest' in strings_locale)
+        self.assertEqual(
+            strings_locale['dom/chrome/appstrings.properties:zeroTest'], '0')
         self.assertEqual(
             strings_locale['browser/chrome/browser/taskbar.properties:taskbar.tasks.newWindow.label'].encode('utf-8'), '打开新窗口')
         self.assertEqual(
