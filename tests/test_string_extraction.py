@@ -24,7 +24,7 @@ class TestStringExtraction(unittest.TestCase):
         extraction.extractStrings()
 
         strings_locale = extraction.translations
-        self.assertEqual(len(strings_locale), 20)
+        self.assertEqual(len(strings_locale), 23)
         self.assertTrue(
             'browser/branding/official/brand.dtd:brandFullName' in strings_locale)
         self.assertTrue(
@@ -39,6 +39,20 @@ class TestStringExtraction(unittest.TestCase):
             strings_locale['browser/chrome/browser/taskbar.properties:taskbar.tasks.newWindow.label'].encode('utf-8'), '打开新窗口')
         self.assertEqual(
             strings_locale['browser/chrome/browser/baseMenuOverlay.dtd:helpMenuWin.accesskey'].encode('utf-8'), 'H')
+        # FTL strings
+        self.assertTrue(
+            'browser/chrome/browser/main.ftl:sample' in strings_locale)
+        self.assertTrue(
+            'browser/chrome/browser/main.ftl:default-content-process-count.label' in strings_locale)
+        self.assertTrue(
+            'browser/chrome/browser/main.ftl:timeDiffHoursAgo' in strings_locale)
+        self.assertFalse(
+            'browser/chrome/browser/main.ftl:default-content-process-count' in strings_locale)
+        self.assertEqual(
+            strings_locale['browser/chrome/browser/main.ftl:default-content-process-count.label'].encode('utf-8'), '{ $num } (default)')
+        self.assertEqual(
+            strings_locale['browser/chrome/browser/main.ftl:sample'].encode('utf-8'), 'Just a test')
+
 
     def testEscape(self):
         extraction = tmx_products.tmx_products.StringExtraction(
