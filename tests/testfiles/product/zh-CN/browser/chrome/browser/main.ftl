@@ -3,6 +3,9 @@
 default-content-process-count
     .label = { $num } (default)
 
+empty-value = ''
+    .label = Test
+
 // Plural form
 timeDiffHoursAgo = { $number ->
          [one] 1 hour ago

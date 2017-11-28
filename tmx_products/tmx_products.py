@@ -152,7 +152,7 @@ class StringExtraction():
                     string_id = u'{0}:{1}'.format(
                         self.getRelativePath(file_name), unicode(entity))
                     if file_extension == '.ftl':
-                        if entity.raw_val != '':
+                        if entity.raw_val is not None:
                             self.translations[string_id] = entity.raw_val
                         # Store attributes
                         for attribute in entity.attributes:
