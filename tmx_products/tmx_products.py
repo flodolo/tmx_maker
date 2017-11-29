@@ -44,7 +44,7 @@ except ImportError as e:
 # Import compare-locales
 import_library(
     libraries_path, 'hg', 'compare-locales',
-    'https://hg.mozilla.org/l10n/compare-locales', 'RELEASE_2_1')
+    'https://hg.mozilla.org/l10n/compare-locales', 'RELEASE_2_5')
 try:
     from compare_locales import parser
 except ImportError as e:
