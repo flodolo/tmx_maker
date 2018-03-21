@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-import env
+from . import env
 import filecmp
 import json
 import os
@@ -8,6 +8,17 @@ import unittest
 
 import tmx_products.tmx_products
 
+# Python 2/3 compatibility
+try:
+    dict.iteritems
+except AttributeError:
+    # Python 3
+    def iteritems(d):
+        return iter(d.items())
+else:
+    # Python 2
+    def iteritems(d):
+        return d.iteritems()
 
 class TestStringExtraction(unittest.TestCase):
 
@@ -35,10 +46,31 @@ class TestStringExtraction(unittest.TestCase):
             'dom/chrome/appstrings.properties:zeroTest' in strings_locale)
         self.assertEqual(
             strings_locale['dom/chrome/appstrings.properties:zeroTest'], '0')
-        self.assertEqual(
-            strings_locale['browser/chrome/browser/taskbar.properties:taskbar.tasks.newWindow.label'].encode('utf-8'), '打开新窗口')
-        self.assertEqual(
-            strings_locale['browser/chrome/browser/baseMenuOverlay.dtd:helpMenuWin.accesskey'].encode('utf-8'), 'H')
+
+        # Python 2/3 compatibility
+        try:
+            str.decode('utf-8')
+        except AttributeError:
+            # Python 3
+            self.assertEqual(
+                strings_locale['browser/chrome/browser/taskbar.properties:taskbar.tasks.newWindow.label'], '打开新窗口')
+            self.assertEqual(
+                strings_locale['browser/chrome/browser/baseMenuOverlay.dtd:helpMenuWin.accesskey'], 'H')
+            self.assertEqual(
+                strings_locale['browser/chrome/browser/main.ftl:default-content-process-count.label'], '{ $num } (default)')
+            self.assertEqual(
+                strings_locale['browser/chrome/browser/main.ftl:sample'], 'Just a test')
+        else:
+            # Python 2
+            self.assertEqual(
+                strings_locale['browser/chrome/browser/taskbar.properties:taskbar.tasks.newWindow.label'].encode('utf-8'), '打开新窗口')
+            self.assertEqual(
+                strings_locale['browser/chrome/browser/baseMenuOverlay.dtd:helpMenuWin.accesskey'].encode('utf-8'), 'H')
+            self.assertEqual(
+                strings_locale['browser/chrome/browser/main.ftl:default-content-process-count.label'].encode('utf-8'), '{ $num } (default)')
+            self.assertEqual(
+                strings_locale['browser/chrome/browser/main.ftl:sample'].encode('utf-8'), 'Just a test')
+
         # FTL strings
         self.assertTrue(
             'browser/chrome/browser/main.ftl:sample' in strings_locale)
@@ -52,11 +84,6 @@ class TestStringExtraction(unittest.TestCase):
             'browser/chrome/browser/main.ftl:timeDiffHoursAgo' in strings_locale)
         self.assertFalse(
             'browser/chrome/browser/main.ftl:default-content-process-count' in strings_locale)
-        self.assertEqual(
-            strings_locale['browser/chrome/browser/main.ftl:default-content-process-count.label'].encode('utf-8'), '{ $num } (default)')
-        self.assertEqual(
-            strings_locale['browser/chrome/browser/main.ftl:sample'].encode('utf-8'), 'Just a test')
-
 
     def testEscape(self):
         extraction = tmx_products.tmx_products.StringExtraction(
@@ -72,7 +99,7 @@ class TestStringExtraction(unittest.TestCase):
             r"To \&quot;Open multiple links\&quot;, please enable the \'Draw over other apps\' permission for &brandShortName;": r"To \\&quot;Open multiple links\\&quot;, please enable the \\\'Draw over other apps\\\' permission for &brandShortName;"
         }
 
-        for string, result in extraction.translations.iteritems():
+        for string, result in iteritems(extraction.translations):
             self.assertEqual(extraction.escape(string), result)
 
     def testRelativePath(self):
@@ -87,7 +114,7 @@ class TestStringExtraction(unittest.TestCase):
             '/home/test/browser/locales/en-US/en-US/chrome/browser/browser.dtd': 'browser/chrome/browser/browser.dtd',
             '/home/test/toolkit/locales/en-US/en-US/defines.inc': 'toolkit/defines.inc',
         }
-        for path, result in paths.iteritems():
+        for path, result in iteritems(paths):
             self.assertEqual(extraction.getRelativePath(path), result)
 
         # I should get the same results if path ends with a /
@@ -99,7 +126,7 @@ class TestStringExtraction(unittest.TestCase):
             '/home/test/browser/locales/en-US/en-US/chrome/browser/browser.dtd': 'browser/chrome/browser/browser.dtd',
             '/home/test/toolkit/locales/en-US/en-US/defines.inc': 'toolkit/defines.inc',
         }
-        for path, result in paths.iteritems():
+        for path, result in iteritems(paths):
             self.assertEqual(extraction.getRelativePath(path), result)
 
         # I should get the same results if path ends with a /
@@ -112,7 +139,7 @@ class TestStringExtraction(unittest.TestCase):
             '/home/test/browser/locales/en-US/en-US/chrome/browser/browser.dtd': 'foo/bar/browser/chrome/browser/browser.dtd',
             '/home/test/toolkit/locales/en-US/en-US/defines.inc': 'foo/bar/toolkit/defines.inc',
         }
-        for path, result in paths.iteritems():
+        for path, result in iteritems(paths):
             self.assertEqual(extraction.getRelativePath(path), result)
 
     def testOutput(self):
