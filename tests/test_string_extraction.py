@@ -1,24 +1,16 @@
 # -*- coding: utf-8 -*-
 
-from . import env
 import filecmp
 import json
 import os
+import six
 import unittest
 
 import tmx_products.tmx_products
 
 # Python 2/3 compatibility
-try:
-    dict.iteritems
-except AttributeError:
-    # Python 3
-    def iteritems(d):
-        return iter(d.items())
-else:
-    # Python 2
-    def iteritems(d):
-        return d.iteritems()
+from six import iteritems
+
 
 class TestStringExtraction(unittest.TestCase):
 
@@ -47,10 +39,7 @@ class TestStringExtraction(unittest.TestCase):
         self.assertEqual(
             strings_locale['dom/chrome/appstrings.properties:zeroTest'], '0')
 
-        # Python 2/3 compatibility
-        try:
-            str.decode('utf-8')
-        except AttributeError:
+        if six.PY3:
             # Python 3
             self.assertEqual(
                 strings_locale['browser/chrome/browser/taskbar.properties:taskbar.tasks.newWindow.label'], '打开新窗口')
