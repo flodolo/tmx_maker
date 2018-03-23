@@ -109,6 +109,26 @@ class TestStringExtraction(unittest.TestCase):
                 strings_locale['browser/chrome/updater/updater.ini:InfoText'].encode('utf-8'),
                 '%MOZ_APP_DISPLAYNAME% sta installando gli aggiornamenti e si avvierà fra qualche istante…')
 
+    def testGetProductStringsBulgarian(self):
+        repo_path = os.path.join(self.testfiles_path, 'product', 'bg')
+        extraction = tmx_products.tmx_products.StringExtraction(
+            self.storage_path, 'bg', 'en-US', 'test')
+        extraction.setRepositoryPath(repo_path)
+        extraction.extractStrings()
+
+        strings_locale = extraction.translations
+
+        if six.PY3:
+            # Python 3
+            self.assertEqual(
+                strings_locale['lightning.properties:imipBarReplyToNotExistingItem'],
+                'Това съобщение съдържа отговор на събитие, което вече не е във вашия календар.')
+        else:
+            # Python 2
+            self.assertEqual(
+                strings_locale['lightning.properties:imipBarReplyToNotExistingItem'].encode('utf-8'),
+                'Това съобщение съдържа отговор на събитие, което вече не е във вашия календар.                       ')
+
     def testEscape(self):
         extraction = tmx_products.tmx_products.StringExtraction(
             self.storage_path, '', '', '')
