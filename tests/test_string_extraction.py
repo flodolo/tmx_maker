@@ -82,7 +82,7 @@ class TestStringExtraction(unittest.TestCase):
         extraction.extractStrings()
 
         strings_locale = extraction.translations
-        self.assertEqual(len(strings_locale), 3)
+        self.assertEqual(len(strings_locale), 5)
 
         self.assertEqual(
             strings_locale['browser/chrome/browser/whitespaces.dtd:whitespaces'], '  Test 1  ')
@@ -91,6 +91,23 @@ class TestStringExtraction(unittest.TestCase):
         self.assertEqual(
             strings_locale['browser/chrome/browser/whitespaces.dtd:trailing_whitespaces'], 'Test 3  ')
 
+        if six.PY3:
+            # Python 3
+            # Strings ends with a <CR> in Python 3
+            self.assertEqual(
+                strings_locale[u'browser/chrome/updater/updater.ini:TitleText'],
+                'Aggiornamento %MOZ_APP_DISPLAYNAME%\u000D')
+            self.assertEqual(
+                strings_locale[u'browser/chrome/updater/updater.ini:InfoText'],
+                '%MOZ_APP_DISPLAYNAME% sta installando gli aggiornamenti e si avvierà fra qualche istante…\u000D')
+        else:
+            # Python 2
+            self.assertEqual(
+                strings_locale['browser/chrome/updater/updater.ini:TitleText'].encode('utf-8'),
+                'Aggiornamento %MOZ_APP_DISPLAYNAME%')
+            self.assertEqual(
+                strings_locale['browser/chrome/updater/updater.ini:InfoText'].encode('utf-8'),
+                '%MOZ_APP_DISPLAYNAME% sta installando gli aggiornamenti e si avvierà fra qualche istante…')
 
     def testEscape(self):
         extraction = tmx_products.tmx_products.StringExtraction(
