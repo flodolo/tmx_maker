@@ -19,7 +19,7 @@ class TestStringExtraction(unittest.TestCase):
             os.path.dirname(__file__), 'testfiles')
         self.storage_path = os.path.join(self.testfiles_path, 'output')
 
-    def testGetProductStrings(self):
+    def testGetProductStringsChinese(self):
         repo_path = os.path.join(self.testfiles_path, 'product', 'zh-CN')
         extraction = tmx_products.tmx_products.StringExtraction(
             self.storage_path, 'zh-CN', 'en-US', 'test')
@@ -73,6 +73,24 @@ class TestStringExtraction(unittest.TestCase):
             'browser/chrome/browser/main.ftl:timeDiffHoursAgo' in strings_locale)
         self.assertFalse(
             'browser/chrome/browser/main.ftl:default-content-process-count' in strings_locale)
+
+    def testGetProductStringsItalian(self):
+        repo_path = os.path.join(self.testfiles_path, 'product', 'it')
+        extraction = tmx_products.tmx_products.StringExtraction(
+            self.storage_path, 'it', 'en-US', 'test')
+        extraction.setRepositoryPath(repo_path)
+        extraction.extractStrings()
+
+        strings_locale = extraction.translations
+        self.assertEqual(len(strings_locale), 3)
+
+        self.assertEqual(
+            strings_locale['browser/chrome/browser/whitespaces.dtd:whitespaces'], '  Test 1  ')
+        self.assertEqual(
+            strings_locale['browser/chrome/browser/whitespaces.dtd:leading_whitespaces'], '  Test 2')
+        self.assertEqual(
+            strings_locale['browser/chrome/browser/whitespaces.dtd:trailing_whitespaces'], 'Test 3  ')
+
 
     def testEscape(self):
         extraction = tmx_products.tmx_products.StringExtraction(

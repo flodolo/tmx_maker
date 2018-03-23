@@ -2,5 +2,8 @@
 <!ENTITY test2 "Test with single 'quotes'">
 <!ENTITY test2b "Test with escaped single 'quotes'">
 <!ENTITY test3 "To \&quot;Open multiple links\&quot;, please enable the \'Draw over other apps\' permission for &brandShortName;">
+<!ENTITY leading_whitespaces "  Spaces before">
+<!ENTITY trailing_whitespaces "Spaces after  ">
+<!ENTITY whitespaces "  Spaces  ">
 <!ENTITY test_missing "This one won't be translated in the locale">
 <!ENTITY test_empty "">
