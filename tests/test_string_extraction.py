@@ -39,26 +39,14 @@ class TestStringExtraction(unittest.TestCase):
         self.assertEqual(
             strings_locale['dom/chrome/appstrings.properties:zeroTest'], '0')
 
-        if six.PY3:
-            # Python 3
-            self.assertEqual(
-                strings_locale['browser/chrome/browser/taskbar.properties:taskbar.tasks.newWindow.label'], '打开新窗口')
-            self.assertEqual(
-                strings_locale['browser/chrome/browser/baseMenuOverlay.dtd:helpMenuWin.accesskey'], 'H')
-            self.assertEqual(
-                strings_locale['browser/chrome/browser/main.ftl:default-content-process-count.label'], '{ $num } (default)')
-            self.assertEqual(
-                strings_locale['browser/chrome/browser/main.ftl:sample'], 'Just a test')
-        else:
-            # Python 2
-            self.assertEqual(
-                strings_locale['browser/chrome/browser/taskbar.properties:taskbar.tasks.newWindow.label'].encode('utf-8'), '打开新窗口')
-            self.assertEqual(
-                strings_locale['browser/chrome/browser/baseMenuOverlay.dtd:helpMenuWin.accesskey'].encode('utf-8'), 'H')
-            self.assertEqual(
-                strings_locale['browser/chrome/browser/main.ftl:default-content-process-count.label'].encode('utf-8'), '{ $num } (default)')
-            self.assertEqual(
-                strings_locale['browser/chrome/browser/main.ftl:sample'].encode('utf-8'), 'Just a test')
+        self.assertEqual(
+            strings_locale['browser/chrome/browser/taskbar.properties:taskbar.tasks.newWindow.label'], u'打开新窗口')
+        self.assertEqual(
+            strings_locale['browser/chrome/browser/baseMenuOverlay.dtd:helpMenuWin.accesskey'], u'H')
+        self.assertEqual(
+            strings_locale['browser/chrome/browser/main.ftl:default-content-process-count.label'], u'{ $num } (default)')
+        self.assertEqual(
+            strings_locale['browser/chrome/browser/main.ftl:sample'], u'Just a test')
 
         # FTL strings
         self.assertTrue(
@@ -96,18 +84,18 @@ class TestStringExtraction(unittest.TestCase):
             # Strings ends with a <CR> in Python 3
             self.assertEqual(
                 strings_locale[u'browser/chrome/updater/updater.ini:TitleText'],
-                'Aggiornamento %MOZ_APP_DISPLAYNAME%\u000D')
+                u'Aggiornamento %MOZ_APP_DISPLAYNAME%\u000D')
             self.assertEqual(
                 strings_locale[u'browser/chrome/updater/updater.ini:InfoText'],
-                '%MOZ_APP_DISPLAYNAME% sta installando gli aggiornamenti e si avvierà fra qualche istante…\u000D')
+                u'%MOZ_APP_DISPLAYNAME% sta installando gli aggiornamenti e si avvierà fra qualche istante…\u000D')
         else:
             # Python 2
             self.assertEqual(
-                strings_locale['browser/chrome/updater/updater.ini:TitleText'].encode('utf-8'),
-                'Aggiornamento %MOZ_APP_DISPLAYNAME%')
+                strings_locale['browser/chrome/updater/updater.ini:TitleText'],
+                u'Aggiornamento %MOZ_APP_DISPLAYNAME%')
             self.assertEqual(
-                strings_locale['browser/chrome/updater/updater.ini:InfoText'].encode('utf-8'),
-                '%MOZ_APP_DISPLAYNAME% sta installando gli aggiornamenti e si avvierà fra qualche istante…')
+                strings_locale['browser/chrome/updater/updater.ini:InfoText'],
+                u'%MOZ_APP_DISPLAYNAME% sta installando gli aggiornamenti e si avvierà fra qualche istante…')
 
     def testGetProductStringsBulgarian(self):
         repo_path = os.path.join(self.testfiles_path, 'product', 'bg')
@@ -122,12 +110,12 @@ class TestStringExtraction(unittest.TestCase):
             # Python 3
             self.assertEqual(
                 strings_locale['lightning.properties:imipBarReplyToNotExistingItem'],
-                'Това съобщение съдържа отговор на събитие, което вече не е във вашия календар.')
+                u'Това съобщение съдържа отговор на събитие, което вече не е във вашия календар.')
         else:
             # Python 2
             self.assertEqual(
-                strings_locale['lightning.properties:imipBarReplyToNotExistingItem'].encode('utf-8'),
-                'Това съобщение съдържа отговор на събитие, което вече не е във вашия календар.                       ')
+                strings_locale['lightning.properties:imipBarReplyToNotExistingItem'],
+                u'Това съобщение съдържа отговор на събитие, което вече не е във вашия календар.                       ')
 
     def testEscape(self):
         extraction = tmx_products.tmx_products.StringExtraction(
