@@ -237,18 +237,17 @@ class TestStringExtraction(unittest.TestCase):
         self.assertTrue(cmp_result_json)
 
     def testBrokenEnconding(self):
-        if not six.PY3:
-            repo_path = os.path.join(self.testfiles_path, 'tmx', 'oc')
-            extraction = tmx_products.tmx_products.StringExtraction(
-                self.storage_path, 'oc', 'en-US', 'test')
-            extraction.setRepositoryPath(repo_path)
-            extraction.extractStrings()
+        repo_path = os.path.join(self.testfiles_path, 'tmx', 'oc')
+        extraction = tmx_products.tmx_products.StringExtraction(
+            self.storage_path, 'oc', 'en-US', 'test')
+        extraction.setRepositoryPath(repo_path)
+        extraction.extractStrings()
 
-            self.assertEqual(extraction.translations[
-                             'test/test.dtd:test1'], 'Test with one \ slash')
-            self.assertFalse(
-                'test/test.dtd:test_missing' in extraction.translations)
-            self.assertFalse('test/test.dtd:test_empty' in extraction.translations)
+        self.assertEqual(extraction.translations[
+                         'test/test.dtd:test1'], 'Test with one \ slash')
+        self.assertFalse(
+            'test/test.dtd:test_missing' in extraction.translations)
+        self.assertFalse('test/test.dtd:test_empty' in extraction.translations)
 
 
 if __name__ == '__main__':
