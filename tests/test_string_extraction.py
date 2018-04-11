@@ -79,23 +79,12 @@ class TestStringExtraction(unittest.TestCase):
         self.assertEqual(
             strings_locale['browser/chrome/browser/whitespaces.dtd:trailing_whitespaces'], 'Test 3  ')
 
-        if six.PY3:
-            # Python 3
-            # Strings ends with a <CR> in Python 3
-            self.assertEqual(
-                strings_locale[u'browser/chrome/updater/updater.ini:TitleText'],
-                u'Aggiornamento %MOZ_APP_DISPLAYNAME%\u000D')
-            self.assertEqual(
-                strings_locale[u'browser/chrome/updater/updater.ini:InfoText'],
-                u'%MOZ_APP_DISPLAYNAME% sta installando gli aggiornamenti e si avvierà fra qualche istante…\u000D')
-        else:
-            # Python 2
-            self.assertEqual(
-                strings_locale['browser/chrome/updater/updater.ini:TitleText'],
-                u'Aggiornamento %MOZ_APP_DISPLAYNAME%')
-            self.assertEqual(
-                strings_locale['browser/chrome/updater/updater.ini:InfoText'],
-                u'%MOZ_APP_DISPLAYNAME% sta installando gli aggiornamenti e si avvierà fra qualche istante…')
+        self.assertEqual(
+            strings_locale['browser/chrome/updater/updater.ini:TitleText'],
+            u'Aggiornamento %MOZ_APP_DISPLAYNAME%')
+        self.assertEqual(
+            strings_locale['browser/chrome/updater/updater.ini:InfoText'],
+            u'%MOZ_APP_DISPLAYNAME% sta installando gli aggiornamenti e si avvierà fra qualche istante…')
 
     def testGetProductStringsBulgarian(self):
         repo_path = os.path.join(self.testfiles_path, 'product', 'bg')
@@ -106,16 +95,9 @@ class TestStringExtraction(unittest.TestCase):
 
         strings_locale = extraction.translations
 
-        if six.PY3:
-            # Python 3
-            self.assertEqual(
-                strings_locale['lightning.properties:imipBarReplyToNotExistingItem'],
-                u'Това съобщение съдържа отговор на събитие, което вече не е във вашия календар.')
-        else:
-            # Python 2
-            self.assertEqual(
-                strings_locale['lightning.properties:imipBarReplyToNotExistingItem'],
-                u'Това съобщение съдържа отговор на събитие, което вече не е във вашия календар.                       ')
+        self.assertEqual(
+            strings_locale['lightning.properties:imipBarReplyToNotExistingItem'],
+            u'Това съобщение съдържа отговор на събитие, което вече не е във вашия календар.                       ')
 
     def testEscape(self):
         extraction = tmx_products.tmx_products.StringExtraction(
@@ -255,17 +237,18 @@ class TestStringExtraction(unittest.TestCase):
         self.assertTrue(cmp_result_json)
 
     def testBrokenEnconding(self):
-        repo_path = os.path.join(self.testfiles_path, 'tmx', 'oc')
-        extraction = tmx_products.tmx_products.StringExtraction(
-            self.storage_path, 'oc', 'en-US', 'test')
-        extraction.setRepositoryPath(repo_path)
-        extraction.extractStrings()
+        if not six.PY3:
+            repo_path = os.path.join(self.testfiles_path, 'tmx', 'oc')
+            extraction = tmx_products.tmx_products.StringExtraction(
+                self.storage_path, 'oc', 'en-US', 'test')
+            extraction.setRepositoryPath(repo_path)
+            extraction.extractStrings()
 
-        self.assertEqual(extraction.translations[
-                         'test/test.dtd:test1'], 'Test with one \ slash')
-        self.assertFalse(
-            'test/test.dtd:test_missing' in extraction.translations)
-        self.assertFalse('test/test.dtd:test_empty' in extraction.translations)
+            self.assertEqual(extraction.translations[
+                             'test/test.dtd:test1'], 'Test with one \ slash')
+            self.assertFalse(
+                'test/test.dtd:test_missing' in extraction.translations)
+            self.assertFalse('test/test.dtd:test_empty' in extraction.translations)
 
 
 if __name__ == '__main__':
