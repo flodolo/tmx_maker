@@ -2,5 +2,8 @@
 <!ENTITY test2 "Prova con 'virgolette'">
 <!ENTITY test2b "Prova con \'virgolette\' escaped">
 <!ENTITY test3 "Per attivare la funzione “Apertura di più link” garantire a &brandShortName; il permesso “Consenti spostamento su altre app”">
+<!ENTITY leading_whitespaces "  Spazi prima">
+<!ENTITY trailing_whitespaces "Spazi dopo  ">
+<!ENTITY whitespaces "  Spazi  ">
 <!ENTITY test_extra "Extra string: this one is not available in the reference language">
 <!ENTITY test_empty "">
