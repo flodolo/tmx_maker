@@ -1,9 +1,7 @@
 # -*- coding: utf-8 -*-
 
 import filecmp
-import json
 import os
-import six
 import unittest
 
 import tmx_products.tmx_products
@@ -216,22 +214,29 @@ class TestStringExtraction(unittest.TestCase):
 
         # Store comparison and remove file before running the test
         output_filename = os.path.join(
-            self.testfiles_path, 'output', 'en-US', 'cache_en-US_appendtest.php')
+            self.testfiles_path, 'output', 'en-US',
+            'cache_en-US_appendtest.php')
         cmp_filename = os.path.join(
             self.testfiles_path, 'output', 'cmp_output_append.php')
         cmp_result_php = filecmp.cmp(output_filename, cmp_filename)
 
         output_filename = os.path.join(
-            self.testfiles_path, 'output', 'en-US', 'cache_en-US_appendtest.json')
+            self.testfiles_path, 'output',
+            'en-US', 'cache_en-US_appendtest.json')
         cmp_filename = os.path.join(
             self.testfiles_path, 'output', 'cmp_output_append.json')
         cmp_result_json = filecmp.cmp(output_filename, cmp_filename)
 
         # Remove files
-        os.remove(os.path.join(self.testfiles_path,
-                               'output', 'en-US', 'cache_en-US_appendtest.php'))
-        os.remove(os.path.join(self.testfiles_path, 'output',
-                               'en-US', 'cache_en-US_appendtest.json'))
+        os.remove(
+            os.path.join(
+                self.testfiles_path, 'output', 'en-US',
+                'cache_en-US_appendtest.php'))
+
+        os.remove(
+            os.path.join(
+                self.testfiles_path, 'output', 'en-US',
+                'cache_en-US_appendtest.json'))
 
         self.assertTrue(cmp_result_php)
         self.assertTrue(cmp_result_json)
