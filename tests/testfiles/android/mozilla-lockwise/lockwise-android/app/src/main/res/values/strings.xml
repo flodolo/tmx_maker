@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <!-- This string is a promotional sentence used across all the applications to describe the purpose of the application. -->
+    <string name="app_tagline">Take your passwords everywhere.</string>
+    <!-- This is used for screenreaders to know the application logo image is currently selected. %1$s will be replaced with application name. -->
+    <string name="app_logo">%1$s Logo</string>
+
+    <!-- This is the text on a button to cancel the current operation or request such as unlocking the application with a fingerprint. -->
+    <string name="cancel">Cancel</string>
+    <!-- This is the title of a link for users to tap to open a web page to learn more about a related setting or feature. -->
+    <string name="learn_more">Learn more</string>
+    <!-- This is the label a screenreader uses to inform the user they selected a link that will open a webpage to learn more about the feature or setting. -->
+    <string name="learn_more_description">Open a link to Learn more</string>    <!-- This is the placeholder text for an empty or null username. -->
+    <string name="no_username">(no username)</string>
+</resources>

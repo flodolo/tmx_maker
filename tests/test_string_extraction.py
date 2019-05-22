@@ -125,8 +125,6 @@ class TestStringExtraction(unittest.TestCase):
             '/home/test/browser/branding/official/brand.dtd': 'browser/branding/official/brand.dtd',
             '/home/test/browser/branding/brand.dtd': 'browser/branding/brand.dtd',
             '/home/test/browser/brand.dtd': 'browser/brand.dtd',
-            '/home/test/browser/locales/en-US/en-US/chrome/browser/browser.dtd': 'browser/chrome/browser/browser.dtd',
-            '/home/test/toolkit/locales/en-US/en-US/defines.inc': 'toolkit/defines.inc',
         }
         for path, result in iteritems(paths):
             self.assertEqual(extraction.getRelativePath(path), result)
@@ -137,8 +135,6 @@ class TestStringExtraction(unittest.TestCase):
             '/home/test/browser/branding/official/brand.dtd': 'browser/branding/official/brand.dtd',
             '/home/test/browser/branding/brand.dtd': 'browser/branding/brand.dtd',
             '/home/test/browser/brand.dtd': 'browser/brand.dtd',
-            '/home/test/browser/locales/en-US/en-US/chrome/browser/browser.dtd': 'browser/chrome/browser/browser.dtd',
-            '/home/test/toolkit/locales/en-US/en-US/defines.inc': 'toolkit/defines.inc',
         }
         for path, result in iteritems(paths):
             self.assertEqual(extraction.getRelativePath(path), result)
@@ -150,8 +146,6 @@ class TestStringExtraction(unittest.TestCase):
             '/home/test/browser/branding/official/brand.dtd': 'foo/bar/browser/branding/official/brand.dtd',
             '/home/test/browser/branding/brand.dtd': 'foo/bar/browser/branding/brand.dtd',
             '/home/test/browser/brand.dtd': 'foo/bar/browser/brand.dtd',
-            '/home/test/browser/locales/en-US/en-US/chrome/browser/browser.dtd': 'foo/bar/browser/chrome/browser/browser.dtd',
-            '/home/test/toolkit/locales/en-US/en-US/defines.inc': 'foo/bar/toolkit/defines.inc',
         }
         for path, result in iteritems(paths):
             self.assertEqual(extraction.getRelativePath(path), result)
