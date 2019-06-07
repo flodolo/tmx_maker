@@ -1,2 +1,2 @@
-compare-locales==7.2.4
+compare-locales==7.2.5
 six==1.12.0
