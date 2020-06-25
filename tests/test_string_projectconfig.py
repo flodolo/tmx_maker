@@ -4,7 +4,7 @@ import filecmp
 import os
 import unittest
 
-import tmx_products.tmx_android
+import tmx_products.tmx_projectconfig
 
 # Python 2/3 compatibility
 from six import iteritems
@@ -19,7 +19,7 @@ class TestStringExtraction(unittest.TestCase):
 
     def testGetAndroidStringsGerman(self):
         toml_path = os.path.join(self.testfiles_path, 'android', 'l10n.toml')
-        extraction = tmx_products.tmx_android.StringExtraction(
+        extraction = tmx_products.tmx_projectconfig.StringExtraction(
             toml_path, self.storage_path, 'en-US', 'test')
         extraction.extractStrings()
 
