@@ -114,7 +114,7 @@ class StringExtraction():
             storage_folder = os.path.join(self.storage_path, locale)
             storage_file = os.path.join(
                 storage_folder,
-                'cache_{0}_{1}'.format(locale, self.repository_name))
+                'cache_{}_{}'.format(locale, self.repository_name))
 
             # Make sure that the TMX folder exists
             if not os.path.exists(storage_folder):
@@ -137,7 +137,7 @@ class StringExtraction():
                 for string_id in string_ids:
                     translation = self.escape(translations[string_id])
                     string_id = self.escape(string_id)
-                    output_php.append(u"'{0}' => '{1}',\n".format(
+                    output_php.append(u"'{}' => '{}',\n".format(
                         string_id, translation))
                 output_php.append('];\n')
 
