@@ -1,0 +1,53 @@
+name: Run Tests
+on:
+  # Trigger on push to master
+  push:
+    branches:
+      - master
+  # Trigger the workflow on pull request events
+  # but only for the master branch
+  pull_request:
+    branches: [ master ]
+    types: [ opened, synchronize, reopened ]
+  workflow_dispatch:
+jobs:
+  linter:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v2
+
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: '3.x'
+          architecture: x64
+
+      - name: Install packages
+        run: |
+          pip install flake8
+
+      - name: Linter (flake8)
+        run: flake8 .
+
+  tests:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-versions: ['2.7', '3.6', '3.7', '3.8', '3.9']
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v2
+
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: ${{ matrix.python-version }}
+          architecture: x64
+
+      - name: Install packages
+        run: |
+          pip install -r requirements.txt
+
+      - name: Run tests
+        run: python -m unittest discover
