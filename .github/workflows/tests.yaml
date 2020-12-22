@@ -25,10 +25,13 @@ jobs:
 
       - name: Install packages
         run: |
-          pip install flake8
+          pip install flake8 black
 
       - name: Linter (flake8)
         run: flake8 .
+
+      - name: Linter (black)
+        run: black --check .
 
   tests:
     runs-on: ubuntu-latest
