@@ -1,17 +1,12 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
+from configparser import ConfigParser
 import argparse
 import codecs
 import json
 import logging
 import os
 import sys
-
-# Python 2/3 compatibility
-try:
-    from ConfigParser import SafeConfigParser
-except ImportError:
-    from configparser import ConfigParser as SafeConfigParser
 
 logging.basicConfig()
 # Get absolute path of ../../config from the current script location (not the
@@ -30,7 +25,7 @@ if not os.path.isfile(config_file):
     )
     root_folder = os.path.abspath(os.path.join(os.path.dirname(__file__), os.pardir))
 else:
-    config_parser = SafeConfigParser()
+    config_parser = ConfigParser()
     config_parser.read(config_file)
     storage_path = os.path.join(config_parser.get("config", "root"), "TMX")
 
