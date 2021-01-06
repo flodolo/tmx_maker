@@ -1,18 +1,12 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
+from configparser import ConfigParser
 import argparse
 import codecs
 import json
 import logging
 import os
-import six
 import sys
-
-# Python 2/3 compatibility
-try:
-    from ConfigParser import SafeConfigParser
-except ImportError:
-    from configparser import ConfigParser as SafeConfigParser
 
 logging.basicConfig()
 # Get absolute path of ../../config from the current script location (not the
@@ -31,7 +25,7 @@ if not os.path.isfile(config_file):
     )
     root_folder = os.path.abspath(os.path.join(os.path.dirname(__file__), os.pardir))
 else:
-    config_parser = SafeConfigParser()
+    config_parser = ConfigParser()
     config_parser.read(config_file)
     storage_path = os.path.join(config_parser.get("config", "root"), "TMX")
 
@@ -138,9 +132,7 @@ class StringExtraction:
                     # Ignore Junk
                     if isinstance(entity, parser.Junk):
                         continue
-                    string_id = u"{}:{}".format(
-                        self.getRelativePath(file_name), six.text_type(entity)
-                    )
+                    string_id = u"{}:{}".format(self.getRelativePath(file_name), entity)
                     if file_extension == ".ftl":
                         if entity.raw_val is not None:
                             self.translations[string_id] = entity.raw_val
@@ -148,8 +140,8 @@ class StringExtraction:
                         for attribute in entity.attributes:
                             attr_string_id = u"{}:{}.{}".format(
                                 self.getRelativePath(file_name),
-                                six.text_type(entity),
-                                six.text_type(attribute),
+                                entity,
+                                attribute,
                             )
                             self.translations[attr_string_id] = attribute.raw_val
                     else:
