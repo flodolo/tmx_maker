@@ -42,22 +42,22 @@ class TestStringExtraction(unittest.TestCase):
             strings_locale[
                 "browser/chrome/browser/taskbar.properties:taskbar.tasks.newWindow.label"
             ],
-            u"打开新窗口",
+            "打开新窗口",
         )
         self.assertEqual(
             strings_locale[
                 "browser/chrome/browser/baseMenuOverlay.dtd:helpMenuWin.accesskey"
             ],
-            u"H",
+            "H",
         )
         self.assertEqual(
             strings_locale[
                 "browser/chrome/browser/main.ftl:default-content-process-count.label"
             ],
-            u"{ $num } (default)",
+            "{ $num } (default)",
         )
         self.assertEqual(
-            strings_locale["browser/chrome/browser/main.ftl:sample"], u"Just a test"
+            strings_locale["browser/chrome/browser/main.ftl:sample"], "Just a test"
         )
 
         # FTL strings
@@ -112,11 +112,11 @@ class TestStringExtraction(unittest.TestCase):
 
         self.assertEqual(
             strings_locale["browser/chrome/updater/updater.ini:TitleText"],
-            u"Aggiornamento %MOZ_APP_DISPLAYNAME%",
+            "Aggiornamento %MOZ_APP_DISPLAYNAME%",
         )
         self.assertEqual(
             strings_locale["browser/chrome/updater/updater.ini:InfoText"],
-            u"%MOZ_APP_DISPLAYNAME% sta installando gli aggiornamenti e si avvierà fra qualche istante…",
+            "%MOZ_APP_DISPLAYNAME% sta installando gli aggiornamenti e si avvierà fra qualche istante…",
         )
 
     def testGetProductStringsBulgarian(self):
@@ -131,7 +131,7 @@ class TestStringExtraction(unittest.TestCase):
 
         self.assertEqual(
             strings_locale["lightning.properties:imipBarReplyToNotExistingItem"],
-            u"Това съобщение съдържа отговор на събитие, което вече не е във вашия календар.                       ",
+            "Това съобщение съдържа отговор на събитие, което вече не е във вашия календар.                       ",
         )
 
     def testEscape(self):

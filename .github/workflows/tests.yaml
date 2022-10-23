@@ -1,27 +1,26 @@
 name: Run Tests
 on:
-  # Trigger on push to master
+  # Trigger on push to default branch
   push:
     branches:
-      - master
+      - main
   # Trigger the workflow on pull request events
   # but only for the master branch
   pull_request:
-    branches: [ master ]
-    types: [ opened, synchronize, reopened ]
+    branches:
+      - main
   workflow_dispatch:
 jobs:
   linter:
     runs-on: ubuntu-latest
     steps:
       - name: Check out repository
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
       - name: Set up Python
-        uses: actions/setup-python@v2
+        uses: actions/setup-python@v4
         with:
-          python-version: '3.x'
-          architecture: x64
+          python-version: '3.10'
 
       - name: Install packages
         run: |
@@ -37,13 +36,13 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-versions: ['3.5', '3.6', '3.7', '3.8', '3.9']
+        python-versions: ['3.7', '3.8', '3.9', '3.10']
     steps:
       - name: Check out repository
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
       - name: Set up Python
-        uses: actions/setup-python@v2
+        uses: actions/setup-python@v4
         with:
           python-version: ${{ matrix.python-versions }}
 
