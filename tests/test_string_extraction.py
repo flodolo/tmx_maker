@@ -178,7 +178,7 @@ class TestStringExtraction(unittest.TestCase):
 
         # I should get the same results if path ends with a /
         extraction.setRepositoryPath("/home/test")
-        extraction.setStorageMode("append", "foo/bar")
+        extraction.setStorageAppendMode("foo/bar")
         paths = {
             "/home/test/browser/branding/official/brand.dtd": "foo/bar/browser/branding/official/brand.dtd",
             "/home/test/browser/branding/brand.dtd": "foo/bar/browser/branding/brand.dtd",
@@ -251,7 +251,7 @@ class TestStringExtraction(unittest.TestCase):
             self.storage_path, "en-US", "en-US", "appendtest"
         )
         extraction.setRepositoryPath(repo_path)
-        extraction.setStorageMode("append", "foo/bar/")
+        extraction.setStorageAppendMode("foo/bar/")
         extraction.extractStrings()
         extraction.storeTranslations("")
 
