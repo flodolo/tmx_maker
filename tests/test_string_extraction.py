@@ -6,6 +6,7 @@ import unittest
 
 import tmx_products.tmx_products
 
+
 class TestStringExtraction(unittest.TestCase):
     def setUp(self):
         self.testfiles_path = os.path.join(os.path.dirname(__file__), "testfiles")
