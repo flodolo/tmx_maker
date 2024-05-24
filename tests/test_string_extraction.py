@@ -6,10 +6,6 @@ import unittest
 
 import tmx_products.tmx_products
 
-# Python 2/3 compatibility
-from six import iteritems
-
-
 class TestStringExtraction(unittest.TestCase):
     def setUp(self):
         self.testfiles_path = os.path.join(os.path.dirname(__file__), "testfiles")
@@ -149,7 +145,7 @@ class TestStringExtraction(unittest.TestCase):
             r"To \&quot;Open multiple links\&quot;, please enable the \'Draw over other apps\' permission for &brandShortName;": r"To \\&quot;Open multiple links\\&quot;, please enable the \\\'Draw over other apps\\\' permission for &brandShortName;",
         }
 
-        for string, result in iteritems(extraction.translations):
+        for string, result in extraction.translations.items():
             self.assertEqual(extraction.escape(string), result)
 
     def testRelativePath(self):
@@ -163,7 +159,7 @@ class TestStringExtraction(unittest.TestCase):
             "/home/test/browser/branding/brand.dtd": "browser/branding/brand.dtd",
             "/home/test/browser/brand.dtd": "browser/brand.dtd",
         }
-        for path, result in iteritems(paths):
+        for path, result in paths.items():
             self.assertEqual(extraction.getRelativePath(path), result)
 
         # I should get the same results if path ends with a /
@@ -173,7 +169,7 @@ class TestStringExtraction(unittest.TestCase):
             "/home/test/browser/branding/brand.dtd": "browser/branding/brand.dtd",
             "/home/test/browser/brand.dtd": "browser/brand.dtd",
         }
-        for path, result in iteritems(paths):
+        for path, result in paths.items():
             self.assertEqual(extraction.getRelativePath(path), result)
 
         # I should get the same results if path ends with a /
@@ -184,7 +180,7 @@ class TestStringExtraction(unittest.TestCase):
             "/home/test/browser/branding/brand.dtd": "foo/bar/browser/branding/brand.dtd",
             "/home/test/browser/brand.dtd": "foo/bar/browser/brand.dtd",
         }
-        for path, result in iteritems(paths):
+        for path, result in paths.items():
             self.assertEqual(extraction.getRelativePath(path), result)
 
     def testOutput(self):

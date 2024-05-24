@@ -1,14 +1,9 @@
 # -*- coding: utf-8 -*-
 
-import filecmp
 import os
 import unittest
 
 import tmx_products.tmx_projectconfig
-
-# Python 2/3 compatibility
-from six import iteritems
-
 
 class TestStringExtraction(unittest.TestCase):
     def setUp(self):
