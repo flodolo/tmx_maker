@@ -21,7 +21,7 @@ class TestStringExtraction(unittest.TestCase):
         extraction.extractStrings()
 
         strings_locale = extraction.translations
-        self.assertEqual(len(strings_locale), 26)
+        self.assertEqual(len(strings_locale), 27)
         self.assertTrue(
             "browser/branding/official/brand.dtd:brandFullName" in strings_locale
         )
@@ -67,9 +67,26 @@ class TestStringExtraction(unittest.TestCase):
             "browser/chrome/browser/main.ftl:default-content-process-count.label"
             in strings_locale
         )
+
+        self.assertTrue(
+            "browser/chrome/browser/main.ftl:no-value" not in strings_locale
+        )
         self.assertTrue("browser/chrome/browser/main.ftl:empty-value" in strings_locale)
+        self.assertEqual(
+            strings_locale["browser/chrome/browser/main.ftl:empty-value"],
+            "''",
+        )
+        self.assertEqual(
+            strings_locale["browser/chrome/browser/main.ftl:empty-value.label"],
+            "Test",
+        )
+
         self.assertTrue(
             "browser/chrome/browser/main.ftl:timeDiffHoursAgo" in strings_locale
+        )
+        self.assertTrue(
+            "*[other]"
+            in strings_locale["browser/chrome/browser/main.ftl:timeDiffHoursAgo"]
         )
         self.assertTrue(
             "browser/chrome/browser/main.ftl:onboarding-fxa-text" in strings_locale
