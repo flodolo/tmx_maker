@@ -18,7 +18,8 @@ timeDiffHoursAgo = { $number ->
 # Basic string
 sample = Just a test
 
-some junk text, should be ignored
+# TODO: restore this?
+# some junk text, should be ignored
 
 # Parameterized term
 onboarding-fxa-text = Зарегистрируйте { -fxaccount-brand-name(case: "nominative") } test.
