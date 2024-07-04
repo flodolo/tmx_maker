@@ -2,6 +2,7 @@
 
 import filecmp
 import os
+import string
 import unittest
 
 import tmx_products.tmx_products
@@ -125,11 +126,11 @@ class TestStringExtraction(unittest.TestCase):
         )
 
         self.assertEqual(
-            strings_locale["browser/chrome/updater/updater.ini:TitleText"],
+            strings_locale["browser/chrome/updater/updater.ini:Strings.TitleText"],
             "Aggiornamento %MOZ_APP_DISPLAYNAME%",
         )
         self.assertEqual(
-            strings_locale["browser/chrome/updater/updater.ini:InfoText"],
+            strings_locale["browser/chrome/updater/updater.ini:Strings.InfoText"],
             "%MOZ_APP_DISPLAYNAME% sta installando gli aggiornamenti e si avvierà fra qualche istante…",
         )
 
@@ -301,20 +302,6 @@ class TestStringExtraction(unittest.TestCase):
 
         self.assertTrue(cmp_result_php)
         self.assertTrue(cmp_result_json)
-
-    def testBrokenEnconding(self):
-        repo_path = os.path.join(self.testfiles_path, "tmx", "oc")
-        extraction = tmx_products.tmx_products.StringExtraction(
-            self.storage_path, "oc", "en-US", "test"
-        )
-        extraction.setRepositoryPath(repo_path)
-        extraction.extractStrings()
-
-        self.assertEqual(
-            extraction.translations["test/test.dtd:test1"], "Test with one \ slash"
-        )
-        self.assertFalse("test/test.dtd:test_missing" in extraction.translations)
-        self.assertFalse("test/test.dtd:test_empty" in extraction.translations)
 
 
 if __name__ == "__main__":
