@@ -1,12 +1,13 @@
 #!/usr/bin/env python
 
+from compare_locales.parser import getParser
 from configparser import ConfigParser
+from moz.l10n.paths import L10nConfigPaths, get_android_locale
 import argparse
 import codecs
 import json
 import logging
 import os
-import sys
 
 logging.basicConfig()
 # Get absolute path of ../../config from the current script location (not the
@@ -31,17 +32,16 @@ else:
     config_parser.read(config_file)
     storage_path = os.path.join(config_parser.get("config", "root"), "TMX")
 
-try:
-    from compare_locales import paths
-    from compare_locales.parser import getParser
-except ImportError as e:
-    print("FATAL: make sure that dependencies are installed")
-    print(e)
-    sys.exit(1)
-
 
 class StringExtraction:
-    def __init__(self, toml_path, storage_path, reference_locale, repository_name):
+    def __init__(
+        self,
+        toml_path,
+        storage_path,
+        reference_locale,
+        repository_name,
+        android_project,
+    ):
         """Initialize object."""
 
         # Set defaults
@@ -54,6 +54,7 @@ class StringExtraction:
         self.storage_path = storage_path
         self.reference_locale = reference_locale
         self.repository_name = repository_name
+        self.android_project = android_project
 
     def setStorageAppendMode(self, prefix):
         """Set storage mode and prefix."""
@@ -82,12 +83,60 @@ class StringExtraction:
         def readFiles(locale):
             """Read files for locale"""
 
-            if locale == self.reference_locale:
-                files = paths.ProjectFiles(None, [project_config])
+            if locale != self.reference_locale:
+                if self.android_project:
+                    file_list = [
+                        (
+                            os.path.abspath(
+                                tgt_path.format(
+                                    android_locale=get_android_locale(locale)
+                                )
+                            ),
+                            os.path.abspath(ref_path.format(android_locale=None)),
+                        )
+                        for (
+                            ref_path,
+                            tgt_path,
+                        ), locales in project_config_paths.all().items()
+                        if locale in locales
+                    ]
+                else:
+                    file_list = [
+                        (
+                            os.path.abspath(tgt_path.format(locale=locale)),
+                            os.path.abspath(ref_path.format(locale=None)),
+                        )
+                        for (
+                            ref_path,
+                            tgt_path,
+                        ), locales in project_config_paths.all().items()
+                        if locale in locales
+                    ]
             else:
-                files = paths.ProjectFiles(locale, [project_config])
+                if self.android_project:
+                    file_list = [
+                        (
+                            os.path.abspath(ref_path.format(android_locale=None)),
+                            os.path.abspath(ref_path.format(android_locale=None)),
+                        )
+                        for (
+                            ref_path,
+                            tgt_path,
+                        ), locales in project_config_paths.all().items()
+                    ]
+                else:
+                    file_list = [
+                        (
+                            os.path.abspath(ref_path.format(locale=None)),
+                            os.path.abspath(ref_path.format(locale=None)),
+                        )
+                        for (
+                            ref_path,
+                            tgt_path,
+                        ), locales in project_config_paths.all().items()
+                    ]
 
-            for l10n_file, reference_file, _, _ in files:
+            for l10n_file, reference_file in file_list:
                 if not os.path.exists(l10n_file):
                     # File not available in localization
                     continue
@@ -115,8 +164,12 @@ class StringExtraction:
                 )
 
         basedir = os.path.dirname(self.toml_path)
-        project_config = paths.TOMLParser().parse(self.toml_path, env={"l10n_base": ""})
-        basedir = os.path.join(basedir, project_config.root)
+        if self.android_project:
+            project_config_paths = L10nConfigPaths(
+                self.toml_path, locale_map={"android_locale": get_android_locale}
+            )
+        else:
+            project_config_paths = L10nConfigPaths(self.toml_path)
 
         # Read strings for reference locale
         self.translations[self.reference_locale] = (
@@ -124,7 +177,9 @@ class StringExtraction:
         )
         readFiles(self.reference_locale)
 
-        for locale in project_config.all_locales:
+        locales = list(project_config_paths.all_locales)
+        locales.sort()
+        for locale in locales:
             # If storage mode is append, read existing translations (if available)
             self.translations[locale] = (
                 readExistingJSON(locale) if self.storage_append else {}
@@ -215,6 +270,13 @@ def main():
         help="If set to 'append', translations will be added to an existing cache file",
     )
     parser.add_argument(
+        "--android",
+        dest="android_project",
+        action="store_true",
+        help="If passed, the script will parse the config file using Android locale codes",
+        default=False,
+    )
+    parser.add_argument(
         "--prefix",
         dest="storage_prefix",
         nargs="?",
@@ -237,6 +299,7 @@ def main():
         storage_path,
         args.reference_code,
         args.repository_name,
+        args.android_project,
     )
     if args.append_mode:
         extracted_strings.setStorageAppendMode(args.storage_prefix)
