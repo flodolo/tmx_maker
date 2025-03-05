@@ -84,41 +84,29 @@ class StringExtraction:
             """Read files for locale"""
 
             if locale != self.reference_locale:
-                if self.android_project:
-                    file_list = [
-                        (
-                            os.path.abspath(
-                                tgt_path.format(
-                                    android_locale=get_android_locale(locale)
-                                )
-                            ),
-                            os.path.abspath(ref_path.format(android_locale=None)),
+                locale_files = [
+                    (
+                        os.path.abspath(ref_path),
+                        os.path.abspath(tgt_path),
+                    )
+                    for (
+                        ref_path,
+                        raw_tgt_path,
+                    ), locales in project_config_paths.all().items()
+                    if locale in locales
+                    and os.path.exists(
+                        tgt_path := project_config_paths.format_target_path(
+                            raw_tgt_path, locale
                         )
-                        for (
-                            ref_path,
-                            tgt_path,
-                        ), locales in project_config_paths.all().items()
-                        if locale in locales
-                    ]
-                else:
-                    file_list = [
-                        (
-                            os.path.abspath(tgt_path.format(locale=locale)),
-                            os.path.abspath(ref_path.format(locale=None)),
-                        )
-                        for (
-                            ref_path,
-                            tgt_path,
-                        ), locales in project_config_paths.all().items()
-                        if locale in locales
-                    ]
+                    )
+                ]
             else:
-                file_list = [
+                locale_files = [
                     (os.path.abspath(ref_path), os.path.abspath(ref_path))
                     for ref_path in project_config_paths.ref_paths
                 ]
 
-            for l10n_file, reference_file in file_list:
+            for reference_file, l10n_file in locale_files:
                 if not os.path.exists(l10n_file):
                     # File not available in localization
                     continue
