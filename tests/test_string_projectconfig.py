@@ -20,9 +20,23 @@ class TestStringExtraction(unittest.TestCase):
 
         strings_locale = extraction.translations
         self.assertEqual(len(strings_locale), 11)
-        self.assertEqual(len(strings_locale["it"]), 4)
+        self.assertEqual(len(strings_locale["it"]), 6)
         self.assertEqual(len(strings_locale["en-US"]), 17)
         self.assertEqual(len(strings_locale["es-ES"]), 5)
+
+        # Check escapes
+        self.assertEqual(
+            strings_locale["it"][
+                "test/mozilla-lockwise/lockwise-android/app/src/main/res/values/strings.xml:escaped_quote"
+            ],
+            "Sblocca comodamente l'app utilizzando la tua impronta digitale",
+        )
+        self.assertEqual(
+            strings_locale["it"][
+                "test/mozilla-lockwise/lockwise-android/app/src/main/res/values/strings.xml:escaped_doublequote"
+            ],
+            'Sblocca comodamente l’app utilizzando la tua "impronta digitale"',
+        )
 
     def testGetProductStrings(self):
         toml_path = os.path.join(self.testfiles_path, "toml", "l10n.toml")

@@ -9,4 +9,7 @@
     <string name="cancel">Annulla</string>
     <!-- This description of the app convenience is shown on the final onboarding screen. -->
     <string name="convenience_description">Sblocca comodamente l’app utilizzando la tua impronta digitale</string>
+
+    <string name="escaped_quote">Sblocca comodamente l\'app utilizzando la tua impronta digitale</string>
+    <string name="escaped_doublequote">Sblocca comodamente l’app utilizzando la tua \"impronta digitale\"</string>
 </resources>
