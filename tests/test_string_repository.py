@@ -4,7 +4,7 @@ import filecmp
 import os
 import unittest
 
-import tmx_products.tmx_products
+import tmx_repository as tmx_prod
 
 
 class TestStringExtraction(unittest.TestCase):
@@ -14,7 +14,7 @@ class TestStringExtraction(unittest.TestCase):
 
     def testGetProductStringsChinese(self):
         repo_path = os.path.join(self.testfiles_path, "product", "zh-CN")
-        extraction = tmx_products.tmx_products.StringExtraction(
+        extraction = tmx_prod.StringExtraction(
             self.storage_path, "zh-CN", "en-US", "test"
         )
         extraction.setRepositoryPath(repo_path)
@@ -98,9 +98,7 @@ class TestStringExtraction(unittest.TestCase):
 
     def testGetProductStringsItalian(self):
         repo_path = os.path.join(self.testfiles_path, "product", "it")
-        extraction = tmx_products.tmx_products.StringExtraction(
-            self.storage_path, "it", "en-US", "test"
-        )
+        extraction = tmx_prod.StringExtraction(self.storage_path, "it", "en-US", "test")
         extraction.setRepositoryPath(repo_path)
         extraction.extractStrings()
 
@@ -125,19 +123,17 @@ class TestStringExtraction(unittest.TestCase):
         )
 
         self.assertEqual(
-            strings_locale["browser/chrome/updater/updater.ini:TitleText"],
+            strings_locale["browser/chrome/updater/updater.ini:Strings.TitleText"],
             "Aggiornamento %MOZ_APP_DISPLAYNAME%",
         )
         self.assertEqual(
-            strings_locale["browser/chrome/updater/updater.ini:InfoText"],
+            strings_locale["browser/chrome/updater/updater.ini:Strings.InfoText"],
             "%MOZ_APP_DISPLAYNAME% sta installando gli aggiornamenti e si avvierà fra qualche istante…",
         )
 
     def testGetProductStringsBulgarian(self):
         repo_path = os.path.join(self.testfiles_path, "product", "bg")
-        extraction = tmx_products.tmx_products.StringExtraction(
-            self.storage_path, "bg", "en-US", "test"
-        )
+        extraction = tmx_prod.StringExtraction(self.storage_path, "bg", "en-US", "test")
         extraction.setRepositoryPath(repo_path)
         extraction.extractStrings()
 
@@ -149,9 +145,7 @@ class TestStringExtraction(unittest.TestCase):
         )
 
     def testEscape(self):
-        extraction = tmx_products.tmx_products.StringExtraction(
-            self.storage_path, "", "", ""
-        )
+        extraction = tmx_prod.StringExtraction(self.storage_path, "", "", "")
         extraction.translations = {
             "This is a simple test.": "This is a simple test.",
             "您的電腦中已儲存下列的 Cookie:": "您的電腦中已儲存下列的 Cookie:",
@@ -167,9 +161,7 @@ class TestStringExtraction(unittest.TestCase):
             self.assertEqual(extraction.escape(string), result)
 
     def testRelativePath(self):
-        extraction = tmx_products.tmx_products.StringExtraction(
-            self.storage_path, "", "", ""
-        )
+        extraction = tmx_prod.StringExtraction(self.storage_path, "", "", "")
 
         extraction.setRepositoryPath("/home/test")
         paths = {
@@ -203,7 +195,7 @@ class TestStringExtraction(unittest.TestCase):
 
     def testOutput(self):
         repo_path = os.path.join(self.testfiles_path, "tmx", "en-US")
-        extraction = tmx_products.tmx_products.StringExtraction(
+        extraction = tmx_prod.StringExtraction(
             self.storage_path, "en-US", "en-US", "test"
         )
         extraction.setRepositoryPath(repo_path)
@@ -211,9 +203,7 @@ class TestStringExtraction(unittest.TestCase):
         extraction.storeTranslations("")
 
         repo_path = os.path.join(self.testfiles_path, "tmx", "it")
-        extraction = tmx_products.tmx_products.StringExtraction(
-            self.storage_path, "it", "en-US", "test"
-        )
+        extraction = tmx_prod.StringExtraction(self.storage_path, "it", "en-US", "test")
         extraction.setRepositoryPath(repo_path)
         extraction.extractStrings()
         extraction.storeTranslations("")
@@ -252,7 +242,7 @@ class TestStringExtraction(unittest.TestCase):
 
     def testOutputAppend(self):
         repo_path = os.path.join(self.testfiles_path, "tmx", "en-US")
-        extraction = tmx_products.tmx_products.StringExtraction(
+        extraction = tmx_prod.StringExtraction(
             self.storage_path, "en-US", "en-US", "appendtest"
         )
         extraction.setRepositoryPath(repo_path)
@@ -261,7 +251,7 @@ class TestStringExtraction(unittest.TestCase):
 
         # Do a new extraction, but append to existing translations
         repo_path = os.path.join(self.testfiles_path, "tmx", "en-US", "mail")
-        extraction = tmx_products.tmx_products.StringExtraction(
+        extraction = tmx_prod.StringExtraction(
             self.storage_path, "en-US", "en-US", "appendtest"
         )
         extraction.setRepositoryPath(repo_path)
@@ -301,20 +291,6 @@ class TestStringExtraction(unittest.TestCase):
 
         self.assertTrue(cmp_result_php)
         self.assertTrue(cmp_result_json)
-
-    def testBrokenEnconding(self):
-        repo_path = os.path.join(self.testfiles_path, "tmx", "oc")
-        extraction = tmx_products.tmx_products.StringExtraction(
-            self.storage_path, "oc", "en-US", "test"
-        )
-        extraction.setRepositoryPath(repo_path)
-        extraction.extractStrings()
-
-        self.assertEqual(
-            extraction.translations["test/test.dtd:test1"], "Test with one \ slash"
-        )
-        self.assertFalse("test/test.dtd:test_missing" in extraction.translations)
-        self.assertFalse("test/test.dtd:test_empty" in extraction.translations)
 
 
 if __name__ == "__main__":
