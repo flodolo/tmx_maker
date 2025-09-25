@@ -1,0 +1,4 @@
+{
+  "include": ["tmx_products", "tests"],
+  "extraPaths": ["tmx_products"]
+}

@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 
-from tmx_products.functions import get_cli_parameters, get_config
+from functions import get_cli_parameters, get_config
 from moz.l10n.formats import Format
 from moz.l10n.message import serialize_message
 from moz.l10n.model import Entry

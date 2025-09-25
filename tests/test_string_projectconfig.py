@@ -3,7 +3,7 @@
 import os
 import unittest
 
-import tmx_products.tmx_projectconfig
+import tmx_projectconfig as tmx_proj
 
 
 class TestStringExtraction(unittest.TestCase):
@@ -13,7 +13,7 @@ class TestStringExtraction(unittest.TestCase):
 
     def testGetAndroidStrings(self):
         toml_path = os.path.join(self.testfiles_path, "android", "l10n.toml")
-        extraction = tmx_products.tmx_projectconfig.StringExtraction(
+        extraction = tmx_proj.StringExtraction(
             toml_path, self.storage_path, "en-US", "test", True
         )
         extraction.extractStrings()
@@ -40,7 +40,7 @@ class TestStringExtraction(unittest.TestCase):
 
     def testGetProductStrings(self):
         toml_path = os.path.join(self.testfiles_path, "toml", "l10n.toml")
-        extraction = tmx_products.tmx_projectconfig.StringExtraction(
+        extraction = tmx_proj.StringExtraction(
             toml_path, self.storage_path, "en", "test", False
         )
         extraction.extractStrings()
