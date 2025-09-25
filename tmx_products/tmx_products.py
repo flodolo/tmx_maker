@@ -103,7 +103,7 @@ class StringExtraction:
                             string_id = f"{self.getRelativePath(file_name)}:{entry_id}"
                             if entry.properties:
                                 # Store the value of an entry with attributes only
-                                # if it has a value.
+                                # if the value is not empty.
                                 if not entry.value.is_empty():
                                     self.translations[string_id] = serialize_message(
                                         resource.format, entry.value

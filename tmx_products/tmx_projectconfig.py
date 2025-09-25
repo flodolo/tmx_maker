@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
-import string
 from tmx_products.functions import get_cli_parameters, get_config
+from moz.l10n.formats import Format
 from moz.l10n.message import serialize_message
 from moz.l10n.model import Entry
 from moz.l10n.paths import L10nConfigPaths, get_android_locale
@@ -58,6 +58,14 @@ class StringExtraction:
 
             return translations
 
+        def getEntryValue(resource, value):
+            entry_value = serialize_message(resource.format, value)
+            if resource.format == Format.android:
+                # In Android resources, unescape quotes
+                entry_value = entry_value.replace('\\"', '"').replace("\\'", "'")
+
+            return entry_value
+
         def readFiles(locale):
             """Read files for locale"""
 
@@ -101,9 +109,13 @@ class StringExtraction:
 
                 try:
                     if is_ref_locale:
-                        resource = parse_resource(reference_file)
+                        resource = parse_resource(
+                            reference_file, android_literal_quotes=True
+                        )
                     else:
-                        resource = parse_resource(l10n_file)
+                        resource = parse_resource(
+                            l10n_file, android_literal_quotes=True
+                        )
                     for section in resource.sections:
                         for entry in section.entries:
                             if isinstance(entry, Entry):
@@ -113,12 +125,10 @@ class StringExtraction:
                                 )
                                 if entry.properties:
                                     # Store the value of an entry with attributes only
-                                    # if it has a value.
+                                    # if the value is not empty.
                                     if not entry.value.is_empty():
                                         self.translations[locale][string_id] = (
-                                            serialize_message(
-                                                resource.format, entry.value
-                                            )
+                                            getEntryValue(resource, entry.value)
                                         )
                                     for (
                                         attribute,
@@ -126,13 +136,11 @@ class StringExtraction:
                                     ) in entry.properties.items():
                                         attr_id = f"{string_id}.{attribute}"
                                         self.translations[locale][attr_id] = (
-                                            serialize_message(
-                                                resource.format, attr_value
-                                            )
+                                            getEntryValue(resource, attr_value)
                                         )
                                 else:
                                     self.translations[locale][string_id] = (
-                                        serialize_message(resource.format, entry.value)
+                                        getEntryValue(resource, entry.value)
                                     )
                 except Exception as e:
                     print(f"Error parsing file: {reference_file}")
