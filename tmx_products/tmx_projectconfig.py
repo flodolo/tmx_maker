@@ -1,8 +1,11 @@
 #!/usr/bin/env python
 
-from compare_locales import parser
+import string
 from tmx_products.functions import get_cli_parameters, get_config
+from moz.l10n.message import serialize_message
+from moz.l10n.model import Entry
 from moz.l10n.paths import L10nConfigPaths, get_android_locale
+from moz.l10n.resource import parse_resource
 import codecs
 import json
 import os
@@ -58,7 +61,13 @@ class StringExtraction:
         def readFiles(locale):
             """Read files for locale"""
 
-            if locale != self.reference_locale:
+            is_ref_locale = locale == self.reference_locale
+            if is_ref_locale:
+                locale_files = [
+                    (os.path.abspath(ref_path), os.path.abspath(ref_path))
+                    for ref_path in project_config_paths.ref_paths
+                ]
+            else:
                 locale_files = [
                     (
                         os.path.abspath(ref_path),
@@ -75,11 +84,6 @@ class StringExtraction:
                         )
                     )
                 ]
-            else:
-                locale_files = [
-                    (os.path.abspath(ref_path), os.path.abspath(ref_path))
-                    for ref_path in project_config_paths.ref_paths
-                ]
 
             for reference_file, l10n_file in locale_files:
                 if not os.path.exists(l10n_file):
@@ -94,32 +98,45 @@ class StringExtraction:
                 # Prepend storage_prefix if defined
                 if self.storage_prefix != "":
                     key_path = f"{self.storage_prefix}/{key_path}"
-                try:
-                    p = parser.getParser(reference_file)
-                except UserWarning:
-                    continue
 
-                p.readFile(l10n_file)
-                if isinstance(p, parser.android.AndroidParser):
-                    # As of https://github.com/mozilla/pontoon/pull/3611, Pontoon
-                    # uses moz.l10n for resource parsing, resulting in quotes being
-                    # escaped. compare-locales doesn't escape them, so need to
-                    # manually remove escapes.
-                    self.translations[locale].update(
-                        (
-                            f"{self.repository_name}/{key_path}:{entity.key}",
-                            entity.raw_val.replace("\\'", "'").replace('\\"', '"'),
-                        )
-                        for entity in p.parse()
-                    )
-                else:
-                    self.translations[locale].update(
-                        (
-                            f"{self.repository_name}/{key_path}:{entity.key}",
-                            entity.raw_val,
-                        )
-                        for entity in p.parse()
-                    )
+                try:
+                    if is_ref_locale:
+                        resource = parse_resource(reference_file)
+                    else:
+                        resource = parse_resource(l10n_file)
+                    for section in resource.sections:
+                        for entry in section.entries:
+                            if isinstance(entry, Entry):
+                                entry_id = ".".join(section.id + entry.id)
+                                string_id = (
+                                    f"{self.repository_name}/{key_path}:{entry_id}"
+                                )
+                                if entry.properties:
+                                    # Store the value of an entry with attributes only
+                                    # if it has a value.
+                                    if not entry.value.is_empty():
+                                        self.translations[locale][string_id] = (
+                                            serialize_message(
+                                                resource.format, entry.value
+                                            )
+                                        )
+                                    for (
+                                        attribute,
+                                        attr_value,
+                                    ) in entry.properties.items():
+                                        attr_id = f"{string_id}.{attribute}"
+                                        self.translations[locale][attr_id] = (
+                                            serialize_message(
+                                                resource.format, attr_value
+                                            )
+                                        )
+                                else:
+                                    self.translations[locale][string_id] = (
+                                        serialize_message(resource.format, entry.value)
+                                    )
+                except Exception as e:
+                    print(f"Error parsing file: {reference_file}")
+                    print(e)
 
         basedir = os.path.dirname(self.toml_path)
         if self.android_project:
