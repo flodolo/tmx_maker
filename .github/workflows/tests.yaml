@@ -1,11 +1,8 @@
 name: Run Tests
 on:
-  # Trigger on push to default branch
   push:
     branches:
       - main
-  # Trigger the workflow on pull request events
-  # but only for the master branch
   pull_request:
     branches:
       - main
@@ -15,26 +12,26 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Check out repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
       - name: Set up Python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v6
         with:
-          python-version: '3.12'
+          python-version: '3.11'
       - name: Set up uv
-        uses: astral-sh/setup-uv@v5
+        uses: astral-sh/setup-uv@v6
         with:
           enable-cache: true
           cache-dependency-glob: |
-            **/requirements.txt
-          version: "0.6.4"
+            requirements.*
+          version: "0.8.22"
       - name: Install Dependencies
-        run: uv pip install -r requirements.txt
+        run: uv pip install -r requirements.txt-r scripts/requirements-dev.txt
         env:
           UV_SYSTEM_PYTHON: 1
       - name: ruff lint
-        run: ruff check
+        run: ruff check scripts
       - name: ruff format
-        run: ruff format --check
+        run: ruff format scripts --check
 
   tests:
     runs-on: ubuntu-latest
@@ -43,22 +40,23 @@ jobs:
         python-versions:
           - '3.11'
           - '3.12'
+          - '3.12'
     steps:
       - name: Check out repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
       - name: Set up Python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v6
         with:
-          python-version: ${{ matrix.python-versions }}
+          python-version: '3.11'
       - name: Set up uv
-        uses: astral-sh/setup-uv@v5
+        uses: astral-sh/setup-uv@v6
         with:
           enable-cache: true
           cache-dependency-glob: |
-            **/requirements.txt
-          version: "0.6.4"
+            requirements.*
+          version: "0.8.22"
       - name: Install Dependencies
-        run: uv pip install -r requirements.txt
+        run: uv pip install -r requirements.txt-r scripts/requirements-dev.txt
         env:
           UV_SYSTEM_PYTHON: 1
       - name: Run tests

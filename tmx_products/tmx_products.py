@@ -4,11 +4,12 @@ from compare_locales import parser
 from configparser import ConfigParser
 from moz.l10n.resource import parse_resource
 from moz.l10n.message import serialize_message
-from moz.l10n.model import Entry, Pattern, PatternMessage
+from moz.l10n.model import Entry
 import argparse
 import codecs
 import json
 import os
+
 
 class StringExtraction:
     def __init__(self, storage_path, locale, reference_locale, repository_name):
@@ -101,9 +102,7 @@ class StringExtraction:
                     for entry in section.entries:
                         if isinstance(entry, Entry):
                             entry_id = ".".join(section.id + entry.id)
-                            string_id = (
-                                f"{self.getRelativePath(file_name)}:{entry_id}"
-                            )
+                            string_id = f"{self.getRelativePath(file_name)}:{entry_id}"
                             if entry.properties:
                                 # Store the value of an entry with attributes only
                                 # if it has a value.
@@ -251,7 +250,9 @@ def main():
             "Configuration file /app/config/config.ini is missing. "
             "Default settings will be used."
         )
-        root_folder = os.path.abspath(os.path.join(os.path.dirname(__file__), os.pardir))
+        root_folder = os.path.abspath(
+            os.path.join(os.path.dirname(__file__), os.pardir)
+        )
         storage_path = os.path.join(root_folder, "TMX")
         os.makedirs(storage_path, exist_ok=True)
     else:

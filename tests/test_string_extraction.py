@@ -2,7 +2,6 @@
 
 import filecmp
 import os
-import string
 import unittest
 
 import tmx_products.tmx_products
