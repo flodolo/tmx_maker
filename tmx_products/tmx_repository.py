@@ -95,9 +95,7 @@ class StringExtraction:
             try:
                 resource = parse_resource(filename)
                 rel_filename = self.getRelativePath(filename)
-                parse_file(
-                    resource, self.translations, filename, f"{rel_filename}"
-                )
+                parse_file(resource, self.translations, filename, f"{rel_filename}")
             except Exception as e:
                 print(f"Error parsing resource: {filename}")
                 print(e)
