@@ -119,7 +119,10 @@ class StringExtraction:
                     for section in resource.sections:
                         for entry in section.entries:
                             if isinstance(entry, Entry):
-                                entry_id = ".".join(section.id + entry.id)
+                                if resource.format == Format.ini:
+                                    entry_id = ".".join(entry.id)
+                                else:
+                                    entry_id = ".".join(section.id + entry.id)
                                 string_id = (
                                     f"{self.repository_name}/{key_path}:{entry_id}"
                                 )

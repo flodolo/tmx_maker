@@ -1,9 +1,10 @@
 #!/usr/bin/env python
 
 from functions import get_cli_parameters, get_config
-from moz.l10n.resource import parse_resource
+from moz.l10n.formats import Format
 from moz.l10n.message import serialize_message
 from moz.l10n.model import Entry
+from moz.l10n.resource import parse_resource
 import codecs
 import json
 import os
@@ -99,7 +100,10 @@ class StringExtraction:
                 for section in resource.sections:
                     for entry in section.entries:
                         if isinstance(entry, Entry):
-                            entry_id = ".".join(section.id + entry.id)
+                            if resource.format == Format.ini:
+                                entry_id = ".".join(entry.id)
+                            else:
+                                entry_id = ".".join(section.id + entry.id)
                             string_id = f"{self.getRelativePath(file_name)}:{entry_id}"
                             if entry.properties:
                                 # Store the value of an entry with attributes only

@@ -124,13 +124,11 @@ class TestStringExtraction(unittest.TestCase):
 
         # .ini files
         self.assertEqual(
-            strings_locale[
-                "browser/chrome/browser/crash.ini:Strings.CrashReporterTitle"
-            ],
+            strings_locale["browser/chrome/browser/crash.ini:CrashReporterTitle"],
             "Crash Reporter",
         )
         self.assertEqual(
-            strings_locale["browser/chrome/browser/crash.ini:Strings.isRTL"],
+            strings_locale["browser/chrome/browser/crash.ini:isRTL"],
             "",
         )
 
@@ -157,11 +155,11 @@ class TestStringExtraction(unittest.TestCase):
         )
 
         self.assertEqual(
-            strings_locale["browser/chrome/updater/updater.ini:Strings.TitleText"],
+            strings_locale["browser/chrome/updater/updater.ini:TitleText"],
             "Aggiornamento %MOZ_APP_DISPLAYNAME%",
         )
         self.assertEqual(
-            strings_locale["browser/chrome/updater/updater.ini:Strings.InfoText"],
+            strings_locale["browser/chrome/updater/updater.ini:InfoText"],
             "%MOZ_APP_DISPLAYNAME% sta installando gli aggiornamenti e si avvierà fra qualche istante…",
         )
 
