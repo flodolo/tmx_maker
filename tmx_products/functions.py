@@ -1,9 +1,11 @@
+import argparse
+import os
+
 from configparser import ConfigParser
+
 from moz.l10n.formats import Format
 from moz.l10n.message import serialize_message
 from moz.l10n.model import Entry, Message, Resource
-import argparse
-import os
 
 
 def get_config() -> str:
