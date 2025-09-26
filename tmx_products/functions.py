@@ -1,4 +1,7 @@
 from configparser import ConfigParser
+from moz.l10n.formats import Format
+from moz.l10n.message import serialize_message
+from moz.l10n.model import Entry, Resource
 import argparse
 import os
 
@@ -91,3 +94,36 @@ def get_cli_parameters(config: bool = False) -> argparse.Namespace:
     )
 
     return parser.parse_args()
+
+
+def parse_file(
+    resource: Resource, storage: dict[str, str], filename: str, id_format: str,
+) -> None:
+    try:
+        for section in resource.sections:
+            for entry in section.entries:
+                if isinstance(entry, Entry):
+                    if resource.format == Format.ini:
+                        entry_id = ".".join(entry.id)
+                    else:
+                        entry_id = ".".join(section.id + entry.id)
+                    string_id = f"{id_format}:{entry_id}"
+                    if entry.properties:
+                        # Store the value of an entry with attributes only
+                        # if the value is not empty.
+                        if not entry.value.is_empty():
+                            storage[string_id] = serialize_message(
+                                resource.format, entry.value
+                            )
+                        for attribute, attr_value in entry.properties.items():
+                            attr_id = f"{string_id}.{attribute}"
+                            storage[attr_id] = serialize_message(
+                                resource.format, attr_value
+                            )
+                    else:
+                        storage[string_id] = serialize_message(
+                            resource.format, entry.value
+                        )
+    except Exception as e:
+        print(f"Error parsing file: {filename}")
+        print(e)
