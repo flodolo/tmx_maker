@@ -103,7 +103,7 @@ class TestStringExtraction(unittest.TestCase):
         extraction.extractStrings()
 
         strings_locale = extraction.translations
-        self.assertEqual(len(strings_locale), 5)
+        self.assertEqual(len(strings_locale), 13)
 
         self.assertEqual(
             strings_locale["browser/chrome/browser/whitespaces.dtd:whitespaces"],
@@ -120,6 +120,40 @@ class TestStringExtraction(unittest.TestCase):
                 "browser/chrome/browser/whitespaces.dtd:trailing_whitespaces"
             ],
             "Test 3  ",
+        )
+
+        # .ini files
+        self.assertEqual(
+            strings_locale[
+                "browser/chrome/browser/crash.ini:Strings.CrashReporterTitle"
+            ],
+            "Crash Reporter",
+        )
+        self.assertEqual(
+            strings_locale["browser/chrome/browser/crash.ini:Strings.isRTL"],
+            "",
+        )
+
+        # .ftl files
+        # A string with attributes but no value should store only the attributes
+        self.assertTrue(
+            "browser/chrome/browser/file.ftl:attr-but-no-value" not in strings_locale
+        )
+        self.assertEqual(
+            strings_locale["browser/chrome/browser/file.ftl:attr-but-no-value.label"],
+            "Label with no value",
+        )
+        self.assertEqual(
+            strings_locale["browser/chrome/browser/file.ftl:attr-with-value"],
+            "Value",
+        )
+        self.assertEqual(
+            strings_locale["browser/chrome/browser/file.ftl:attr-with-value.label"],
+            "Label with value",
+        )
+        self.assertEqual(
+            strings_locale["browser/chrome/browser/file.ftl:empty-string"],
+            '{ "" }',
         )
 
         self.assertEqual(
