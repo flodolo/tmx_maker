@@ -103,7 +103,7 @@ class TestStringExtraction(unittest.TestCase):
         extraction.extractStrings()
 
         strings_locale = extraction.translations
-        self.assertEqual(len(strings_locale), 5)
+        self.assertEqual(len(strings_locale), 13)
 
         self.assertEqual(
             strings_locale["browser/chrome/browser/whitespaces.dtd:whitespaces"],
@@ -122,12 +122,44 @@ class TestStringExtraction(unittest.TestCase):
             "Test 3  ",
         )
 
+        # .ini files
         self.assertEqual(
-            strings_locale["browser/chrome/updater/updater.ini:Strings.TitleText"],
+            strings_locale["browser/chrome/browser/crash.ini:CrashReporterTitle"],
+            "Crash Reporter",
+        )
+        self.assertEqual(
+            strings_locale["browser/chrome/browser/crash.ini:isRTL"],
+            "",
+        )
+
+        # .ftl files
+        # A string with attributes but no value should store only the attributes
+        self.assertTrue(
+            "browser/chrome/browser/file.ftl:attr-but-no-value" not in strings_locale
+        )
+        self.assertEqual(
+            strings_locale["browser/chrome/browser/file.ftl:attr-but-no-value.label"],
+            "Label with no value",
+        )
+        self.assertEqual(
+            strings_locale["browser/chrome/browser/file.ftl:attr-with-value"],
+            "Value",
+        )
+        self.assertEqual(
+            strings_locale["browser/chrome/browser/file.ftl:attr-with-value.label"],
+            "Label with value",
+        )
+        self.assertEqual(
+            strings_locale["browser/chrome/browser/file.ftl:empty-string"],
+            '{ "" }',
+        )
+
+        self.assertEqual(
+            strings_locale["browser/chrome/updater/updater.ini:TitleText"],
             "Aggiornamento %MOZ_APP_DISPLAYNAME%",
         )
         self.assertEqual(
-            strings_locale["browser/chrome/updater/updater.ini:Strings.InfoText"],
+            strings_locale["browser/chrome/updater/updater.ini:InfoText"],
             "%MOZ_APP_DISPLAYNAME% sta installando gli aggiornamenti e si avvierà fra qualche istante…",
         )
 
