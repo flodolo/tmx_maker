@@ -2,10 +2,19 @@ import argparse
 import os
 
 from configparser import ConfigParser
+from typing import Union
 
 from moz.l10n.formats import Format
 from moz.l10n.message import serialize_message
-from moz.l10n.model import Entry, Message, Resource
+from moz.l10n.model import (
+    CatchallKey,
+    Entry,
+    Expression,
+    Message,
+    Pattern,
+    Resource,
+    SelectMessage,
+)
 
 
 def get_config() -> str:
@@ -112,6 +121,37 @@ def parse_file(
 
         return entry_value
 
+    def pattern_to_string(pattern: Pattern) -> str:
+        parts = []
+        for node in pattern:
+            if isinstance(node, str):
+                parts.append(node)
+            elif isinstance(node, Expression):
+                attrs = node.attributes
+                src = (attrs or {}).get("source")
+                if src:
+                    parts.append(src)
+                else:
+                    if node.function == "integer":
+                        parts.append("%d")
+                    elif node.function == "number":
+                        parts.append("%s")
+                    else:
+                        parts.append("{expr}")
+            else:
+                parts.append(str(node))
+        return "".join(parts)
+
+    def serialize_select_variants(entry: Entry) -> str:
+        msg: SelectMessage = entry.value
+        lines: list[str] = []
+        for key_tuple, pattern in msg.variants.items():
+            key: Union[str, CatchallKey] = key_tuple[0] if key_tuple else "other"
+            default = "*" if isinstance(key, CatchallKey) else ""
+            label: str | None = key.value if isinstance(key, CatchallKey) else str(key)
+            lines.append(f"{default}[{label}] {pattern_to_string(pattern)}")
+        return "\n".join(lines)
+
     try:
         for section in resource.sections:
             for entry in section.entries:
@@ -130,7 +170,16 @@ def parse_file(
                             attr_id = f"{string_id}.{attribute}"
                             storage[attr_id] = get_entry_value(attr_value)
                     else:
-                        storage[string_id] = get_entry_value(entry.value)
+                        if resource.format == Format.android:
+                            # If it's a plural string in Android, each variant
+                            # is stored within the message, following a format
+                            # similar to Fluent.
+                            if hasattr(entry.value, "variants"):
+                                storage[string_id] = serialize_select_variants(entry)
+                            else:
+                                storage[string_id] = get_entry_value(entry.value)
+                        else:
+                            storage[string_id] = get_entry_value(entry.value)
     except Exception as e:
         print(f"Error parsing file: {filename}")
         print(e)
