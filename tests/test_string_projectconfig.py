@@ -21,8 +21,16 @@ class TestStringExtraction(unittest.TestCase):
         strings_locale = extraction.translations
         self.assertEqual(len(strings_locale), 11)
         self.assertEqual(len(strings_locale["it"]), 6)
-        self.assertEqual(len(strings_locale["en-US"]), 17)
+        self.assertEqual(len(strings_locale["en-US"]), 18)
         self.assertEqual(len(strings_locale["es-ES"]), 5)
+
+        # Check plurals
+        self.assertEqual(
+            strings_locale["en-US"][
+                "test/MozillaReality/FirefoxReality/app/src/main/res/values/strings.xml:close_tabs_plural"
+            ],
+            "[one] Close %d tab\n*[other] Close %d tabs",
+        )
 
         # Check escapes
         self.assertEqual(
