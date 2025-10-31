@@ -9,9 +9,8 @@ from moz.l10n.message import serialize_message
 from moz.l10n.model import (
     CatchallKey,
     Entry,
-    Expression,
     Message,
-    Pattern,
+    PatternMessage,
     Resource,
     SelectMessage,
 )
@@ -121,27 +120,6 @@ def parse_file(
 
         return entry_value
 
-    def pattern_to_string(pattern: Pattern) -> str:
-        parts = []
-        for node in pattern:
-            if isinstance(node, str):
-                parts.append(node)
-            elif isinstance(node, Expression):
-                attrs = node.attributes
-                src = (attrs or {}).get("source")
-                if src:
-                    parts.append(src)
-                else:
-                    if node.function == "integer":
-                        parts.append("%d")
-                    elif node.function == "number":
-                        parts.append("%s")
-                    else:
-                        parts.append("{expr}")
-            else:
-                parts.append(str(node))
-        return "".join(parts)
-
     def serialize_select_variants(entry: Entry) -> str:
         msg: SelectMessage = entry.value
         lines: list[str] = []
@@ -149,7 +127,9 @@ def parse_file(
             key: Union[str, CatchallKey] = key_tuple[0] if key_tuple else "other"
             default = "*" if isinstance(key, CatchallKey) else ""
             label: str | None = key.value if isinstance(key, CatchallKey) else str(key)
-            lines.append(f"{default}[{label}] {pattern_to_string(pattern)}")
+            lines.append(
+                f"{default}[{label}] {serialize_message(resource.format, PatternMessage(pattern))}"
+            )
         return "\n".join(lines)
 
     try:
