@@ -2,7 +2,6 @@ import argparse
 import os
 
 from configparser import ConfigParser
-from typing import Union
 
 from moz.l10n.formats import Format
 from moz.l10n.message import serialize_message
