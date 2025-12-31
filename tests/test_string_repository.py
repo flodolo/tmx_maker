@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 import filecmp
 import os
 import unittest
