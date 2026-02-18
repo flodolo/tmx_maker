@@ -3,6 +3,7 @@ import os
 import sys
 
 from configparser import ConfigParser
+from pathlib import Path
 
 from moz.l10n.formats import Format
 from moz.l10n.message import serialize_message
@@ -19,9 +20,9 @@ from moz.l10n.model import (
 def get_storage_path(config_path: str) -> str:
     # Check if the requested output path is valid.
     if config_path != "":
-        storage_path = os.path.abspath(config_path)
-        if os.path.isdir(storage_path):
-            return storage_path
+        storage_path = Path(config_path).resolve()
+        if storage_path.is_dir():
+            return str(storage_path)
         sys.exit(
             f"The provided output path {storage_path} is not a valid directory. "
             "Ignoring the parameter."
@@ -31,27 +32,23 @@ def get_storage_path(config_path: str) -> str:
     # current folder). This is based on Transvision's file structure.
     # https://github.com/mozfr/transvision/tree/main/app/scripts/tmx
     # https://github.com/mozfr/transvision/tree/main/app/config
-    config_folder = os.path.abspath(
-        os.path.join(os.path.dirname(__file__), os.pardir, os.pardir, "config")
-    )
-    config_file = os.path.join(config_folder, "config.ini")
-    if not os.path.isfile(config_file):
+    config_folder = (Path(__file__).parent.parent.parent / "config").resolve()
+    config_file = config_folder / "config.ini"
+    if not config_file.is_file():
         print(
             "Configuration file /app/config/config.ini is missing. "
             "The default path will be used."
         )
-        root_folder = os.path.abspath(
-            os.path.join(os.path.dirname(__file__), os.pardir)
-        )
-        storage_path = os.path.join(root_folder, "TMX")
+        root_folder = Path(__file__).parent.parent.resolve()
+        storage_path = root_folder / "TMX"
         os.makedirs(storage_path, exist_ok=True)
 
-        return storage_path
+        return str(storage_path)
 
     # Read from config
     config_parser = ConfigParser()
     config_parser.read(config_file)
-    return os.path.join(config_parser.get("config", "root"), "TMX")
+    return str(Path(config_parser.get("config", "root")) / "TMX")
 
 
 def get_cli_parameters(config: bool = False) -> argparse.Namespace:

@@ -4,6 +4,8 @@ import codecs
 import json
 import os
 
+from pathlib import Path
+
 from functions import get_cli_parameters, get_storage_path, parse_file
 from moz.l10n.resource import parse_resource
 
@@ -31,14 +33,14 @@ class StringExtraction:
         self.reference_locale = reference_locale
 
         # Define the local storage filenames
-        self.storage_file = os.path.join(
-            storage_path, locale, f"cache_{locale}_{repository_name}"
+        self.storage_file = (
+            Path(storage_path) / locale / f"cache_{locale}_{repository_name}"
         )
 
-        self.reference_storage_file = os.path.join(
-            storage_path,
-            reference_locale,
-            f"cache_{reference_locale}_{repository_name}",
+        self.reference_storage_file = (
+            Path(storage_path)
+            / reference_locale
+            / f"cache_{reference_locale}_{repository_name}"
         )
 
     def setRepositoryPath(self, path):
@@ -61,7 +63,7 @@ class StringExtraction:
             for file in files:
                 for supported_format in self.supported_formats:
                     if file.endswith(supported_format):
-                        self.file_list.append(os.path.join(root, file))
+                        self.file_list.append(str(Path(root) / file))
         self.file_list.sort()
 
     def getRelativePath(self, file_name):
@@ -83,8 +85,8 @@ class StringExtraction:
         # If storage mode is append, read existing translations (if available)
         # before overriding them
         if self.storage_append:
-            filename = f"{self.storage_file}.json"
-            if os.path.isfile(filename):
+            filename = Path(f"{self.storage_file}.json")
+            if filename.is_file():
                 with open(filename) as f:
                     self.translations = json.load(f)
                 f.close()
@@ -104,8 +106,8 @@ class StringExtraction:
         # Remove extra strings from locale
         if self.reference_locale != self.locale:
             # Read the JSON cache for reference locale if available
-            filename = f"{self.reference_storage_file}.json"
-            if os.path.isfile(filename):
+            filename = Path(f"{self.reference_storage_file}.json")
+            if filename.is_file():
                 with open(filename) as f:
                     reference_strings = json.load(f)
                 f.close()
@@ -122,7 +124,7 @@ class StringExtraction:
         """
 
         # Make sure the output directory exists
-        os.makedirs(os.path.dirname(self.storage_file), exist_ok=True)
+        os.makedirs(Path(self.storage_file).parent, exist_ok=True)
 
         if output_format != "php":
             # Store translations in JSON format

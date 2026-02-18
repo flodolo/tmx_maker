@@ -1,18 +1,19 @@
-import os
 import unittest
+
+from pathlib import Path
 
 import tmx_projectconfig as tmx_proj
 
 
 class TestStringExtraction(unittest.TestCase):
     def setUp(self):
-        self.testfiles_path = os.path.join(os.path.dirname(__file__), "testfiles")
-        self.storage_path = os.path.join(self.testfiles_path, "output_android")
+        self.testfiles_path = Path(__file__).parent / "testfiles"
+        self.storage_path = self.testfiles_path / "output_android"
 
     def testGetAndroidStrings(self):
-        toml_path = os.path.join(self.testfiles_path, "android", "l10n.toml")
+        toml_path = self.testfiles_path / "android" / "l10n.toml"
         extraction = tmx_proj.StringExtraction(
-            toml_path, self.storage_path, "en-US", "test", True
+            str(toml_path), str(self.storage_path), "en-US", "test", True
         )
         extraction.extractStrings()
 
@@ -45,9 +46,9 @@ class TestStringExtraction(unittest.TestCase):
         )
 
     def testGetProductStrings(self):
-        toml_path = os.path.join(self.testfiles_path, "toml", "l10n.toml")
+        toml_path = self.testfiles_path / "toml" / "l10n.toml"
         extraction = tmx_proj.StringExtraction(
-            toml_path, self.storage_path, "en", "test", False
+            str(toml_path), str(self.storage_path), "en", "test", False
         )
         extraction.extractStrings()
 

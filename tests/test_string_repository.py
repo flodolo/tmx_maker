@@ -1,21 +1,22 @@
 import filecmp
-import os
 import unittest
+
+from pathlib import Path
 
 import tmx_repository as tmx_prod
 
 
 class TestStringExtraction(unittest.TestCase):
     def setUp(self):
-        self.testfiles_path = os.path.join(os.path.dirname(__file__), "testfiles")
-        self.storage_path = os.path.join(self.testfiles_path, "output")
+        self.testfiles_path = Path(__file__).parent / "testfiles"
+        self.storage_path = self.testfiles_path / "output"
 
     def testGetProductStringsChinese(self):
-        repo_path = os.path.join(self.testfiles_path, "product", "zh-CN")
+        repo_path = self.testfiles_path / "product" / "zh-CN"
         extraction = tmx_prod.StringExtraction(
-            self.storage_path, "zh-CN", "en-US", "test"
+            str(self.storage_path), "zh-CN", "en-US", "test"
         )
-        extraction.setRepositoryPath(repo_path)
+        extraction.setRepositoryPath(str(repo_path))
         extraction.extractStrings()
 
         strings_locale = extraction.translations
@@ -95,9 +96,11 @@ class TestStringExtraction(unittest.TestCase):
         )
 
     def testGetProductStringsItalian(self):
-        repo_path = os.path.join(self.testfiles_path, "product", "it")
-        extraction = tmx_prod.StringExtraction(self.storage_path, "it", "en-US", "test")
-        extraction.setRepositoryPath(repo_path)
+        repo_path = self.testfiles_path / "product" / "it"
+        extraction = tmx_prod.StringExtraction(
+            str(self.storage_path), "it", "en-US", "test"
+        )
+        extraction.setRepositoryPath(str(repo_path))
         extraction.extractStrings()
 
         strings_locale = extraction.translations
@@ -162,9 +165,11 @@ class TestStringExtraction(unittest.TestCase):
         )
 
     def testGetProductStringsBulgarian(self):
-        repo_path = os.path.join(self.testfiles_path, "product", "bg")
-        extraction = tmx_prod.StringExtraction(self.storage_path, "bg", "en-US", "test")
-        extraction.setRepositoryPath(repo_path)
+        repo_path = self.testfiles_path / "product" / "bg"
+        extraction = tmx_prod.StringExtraction(
+            str(self.storage_path), "bg", "en-US", "test"
+        )
+        extraction.setRepositoryPath(str(repo_path))
         extraction.extractStrings()
 
         strings_locale = extraction.translations
@@ -175,7 +180,7 @@ class TestStringExtraction(unittest.TestCase):
         )
 
     def testEscape(self):
-        extraction = tmx_prod.StringExtraction(self.storage_path, "", "", "")
+        extraction = tmx_prod.StringExtraction(str(self.storage_path), "", "", "")
         extraction.translations = {
             "This is a simple test.": "This is a simple test.",
             "您的電腦中已儲存下列的 Cookie:": "您的電腦中已儲存下列的 Cookie:",
@@ -191,7 +196,7 @@ class TestStringExtraction(unittest.TestCase):
             self.assertEqual(extraction.escape(string), result)
 
     def testRelativePath(self):
-        extraction = tmx_prod.StringExtraction(self.storage_path, "", "", "")
+        extraction = tmx_prod.StringExtraction(str(self.storage_path), "", "", "")
 
         extraction.setRepositoryPath("/home/test")
         paths = {
@@ -224,100 +229,80 @@ class TestStringExtraction(unittest.TestCase):
             self.assertEqual(extraction.getRelativePath(path), result)
 
     def testOutput(self):
-        repo_path = os.path.join(self.testfiles_path, "tmx", "en-US")
+        repo_path = self.testfiles_path / "tmx" / "en-US"
         extraction = tmx_prod.StringExtraction(
-            self.storage_path, "en-US", "en-US", "test"
+            str(self.storage_path), "en-US", "en-US", "test"
         )
-        extraction.setRepositoryPath(repo_path)
+        extraction.setRepositoryPath(str(repo_path))
         extraction.extractStrings()
         extraction.storeTranslations("")
 
-        repo_path = os.path.join(self.testfiles_path, "tmx", "it")
-        extraction = tmx_prod.StringExtraction(self.storage_path, "it", "en-US", "test")
-        extraction.setRepositoryPath(repo_path)
+        repo_path = self.testfiles_path / "tmx" / "it"
+        extraction = tmx_prod.StringExtraction(
+            str(self.storage_path), "it", "en-US", "test"
+        )
+        extraction.setRepositoryPath(str(repo_path))
         extraction.extractStrings()
         extraction.storeTranslations("")
 
         # Store comparison and remove file before running the test
-        output_filename = os.path.join(
-            self.testfiles_path, "output", "it", "cache_it_test.php"
-        )
-        cmp_filename = os.path.join(self.testfiles_path, "output", "cmp_output.php")
+        output_filename = self.testfiles_path / "output" / "it" / "cache_it_test.php"
+        cmp_filename = self.testfiles_path / "output" / "cmp_output.php"
         cmp_result_php = filecmp.cmp(output_filename, cmp_filename)
 
-        output_filename = os.path.join(
-            self.testfiles_path, "output", "it", "cache_it_test.json"
-        )
-        cmp_filename = os.path.join(self.testfiles_path, "output", "cmp_output.json")
+        output_filename = self.testfiles_path / "output" / "it" / "cache_it_test.json"
+        cmp_filename = self.testfiles_path / "output" / "cmp_output.json"
         cmp_result_json = filecmp.cmp(output_filename, cmp_filename)
 
         # Remove files
-        os.remove(
-            os.path.join(self.testfiles_path, "output", "it", "cache_it_test.php")
-        )
-        os.remove(
-            os.path.join(self.testfiles_path, "output", "it", "cache_it_test.json")
-        )
-        os.remove(
-            os.path.join(self.testfiles_path, "output", "en-US", "cache_en-US_test.php")
-        )
-        os.remove(
-            os.path.join(
-                self.testfiles_path, "output", "en-US", "cache_en-US_test.json"
-            )
-        )
+        (self.testfiles_path / "output" / "it" / "cache_it_test.php").unlink()
+        (self.testfiles_path / "output" / "it" / "cache_it_test.json").unlink()
+        (self.testfiles_path / "output" / "en-US" / "cache_en-US_test.php").unlink()
+        (self.testfiles_path / "output" / "en-US" / "cache_en-US_test.json").unlink()
 
         self.assertTrue(cmp_result_php)
         self.assertTrue(cmp_result_json)
 
     def testOutputAppend(self):
-        repo_path = os.path.join(self.testfiles_path, "tmx", "en-US")
+        repo_path = self.testfiles_path / "tmx" / "en-US"
         extraction = tmx_prod.StringExtraction(
-            self.storage_path, "en-US", "en-US", "appendtest"
+            str(self.storage_path), "en-US", "en-US", "appendtest"
         )
-        extraction.setRepositoryPath(repo_path)
+        extraction.setRepositoryPath(str(repo_path))
         extraction.extractStrings()
         extraction.storeTranslations("")
 
         # Do a new extraction, but append to existing translations
-        repo_path = os.path.join(self.testfiles_path, "tmx", "en-US", "mail")
+        repo_path = self.testfiles_path / "tmx" / "en-US" / "mail"
         extraction = tmx_prod.StringExtraction(
-            self.storage_path, "en-US", "en-US", "appendtest"
+            str(self.storage_path), "en-US", "en-US", "appendtest"
         )
-        extraction.setRepositoryPath(repo_path)
+        extraction.setRepositoryPath(str(repo_path))
         extraction.setStorageAppendMode("foo/bar/")
         extraction.extractStrings()
         extraction.storeTranslations("")
 
         # Store comparison and remove file before running the test
-        output_filename = os.path.join(
-            self.testfiles_path, "output", "en-US", "cache_en-US_appendtest.php"
+        output_filename = (
+            self.testfiles_path / "output" / "en-US" / "cache_en-US_appendtest.php"
         )
-        cmp_filename = os.path.join(
-            self.testfiles_path, "output", "cmp_output_append.php"
-        )
+        cmp_filename = self.testfiles_path / "output" / "cmp_output_append.php"
         cmp_result_php = filecmp.cmp(output_filename, cmp_filename)
 
-        output_filename = os.path.join(
-            self.testfiles_path, "output", "en-US", "cache_en-US_appendtest.json"
+        output_filename = (
+            self.testfiles_path / "output" / "en-US" / "cache_en-US_appendtest.json"
         )
-        cmp_filename = os.path.join(
-            self.testfiles_path, "output", "cmp_output_append.json"
-        )
+        cmp_filename = self.testfiles_path / "output" / "cmp_output_append.json"
         cmp_result_json = filecmp.cmp(output_filename, cmp_filename)
 
         # Remove files
-        os.remove(
-            os.path.join(
-                self.testfiles_path, "output", "en-US", "cache_en-US_appendtest.php"
-            )
-        )
+        (
+            self.testfiles_path / "output" / "en-US" / "cache_en-US_appendtest.php"
+        ).unlink()
 
-        os.remove(
-            os.path.join(
-                self.testfiles_path, "output", "en-US", "cache_en-US_appendtest.json"
-            )
-        )
+        (
+            self.testfiles_path / "output" / "en-US" / "cache_en-US_appendtest.json"
+        ).unlink()
 
         self.assertTrue(cmp_result_php)
         self.assertTrue(cmp_result_json)
