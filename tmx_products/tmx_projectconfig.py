@@ -4,7 +4,7 @@ import codecs
 import json
 import os
 
-from functions import get_cli_parameters, get_config, parse_file
+from functions import get_cli_parameters, get_storage_path, parse_file
 from moz.l10n.paths import L10nConfigPaths, get_android_locale
 from moz.l10n.resource import parse_resource
 
@@ -150,6 +150,7 @@ class StringExtraction:
         for locale in self.translations:
             translations = self.translations[locale]
             storage_folder = os.path.join(self.storage_path, locale)
+            os.makedirs(storage_folder, exist_ok=True)
             storage_file = os.path.join(
                 storage_folder, f"cache_{locale}_{self.repository_name}"
             )
@@ -160,7 +161,11 @@ class StringExtraction:
 
             if output_format != "php":
                 # Store translations in JSON format
-                json_output = json.dumps(translations, sort_keys=True)
+                json_output = json.dumps(
+                    translations,
+                    sort_keys=True,
+                    ensure_ascii=False,
+                )
                 with open(f"{storage_file}.json", "w") as f:
                     f.write(json_output)
 
@@ -206,7 +211,7 @@ class StringExtraction:
 
 def main():
     args = get_cli_parameters(config=True)
-    storage_path = get_config()
+    storage_path = get_storage_path(args.output_path)
     extracted_strings = StringExtraction(
         args.toml_path,
         storage_path,

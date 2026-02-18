@@ -4,7 +4,7 @@ import codecs
 import json
 import os
 
-from functions import get_cli_parameters, get_config, parse_file
+from functions import get_cli_parameters, get_storage_path, parse_file
 from moz.l10n.resource import parse_resource
 
 
@@ -121,9 +121,14 @@ class StringExtraction:
         be stored on file.
         """
 
+        # Make sure the output directory exists
+        os.makedirs(os.path.dirname(self.storage_file), exist_ok=True)
+
         if output_format != "php":
             # Store translations in JSON format
-            json_output = json.dumps(self.translations, sort_keys=True)
+            json_output = json.dumps(
+                self.translations, sort_keys=True, ensure_ascii=False
+            )
             with open(f"{self.storage_file}.json", "w") as f:
                 f.write(json_output)
 
@@ -169,7 +174,7 @@ class StringExtraction:
 
 def main():
     args = get_cli_parameters()
-    storage_path = get_config()
+    storage_path = get_storage_path(args.output_path)
     extracted_strings = StringExtraction(
         storage_path, args.locale_code, args.reference_code, args.repository_name
     )
