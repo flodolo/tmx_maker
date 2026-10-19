@@ -1,6 +1,5 @@
 #!/usr/bin/env python
 
-import codecs
 import json
 import os
 
@@ -185,7 +184,7 @@ class StringExtraction:
                 output_php.append("];\n")
 
                 file_name = f"{storage_file}.php"
-                with codecs.open(file_name, "w", encoding="utf-8") as f:
+                with open(file_name, "w", encoding="utf-8", newline="") as f:
                     f.writelines(output_php)
 
     def escape(self, translation):
