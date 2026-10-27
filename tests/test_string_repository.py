@@ -1,4 +1,5 @@
 import filecmp
+import os
 import unittest
 
 from pathlib import Path
@@ -227,6 +228,48 @@ class TestStringExtraction(unittest.TestCase):
         }
         for path, result in paths.items():
             self.assertEqual(extraction.getRelativePath(path), result)
+
+        # Paths not normalized (e.g. starting with ./) should be handled
+        extraction = tmx_prod.StringExtraction(str(self.storage_path), "", "", "")
+        extraction.setRepositoryPath("./home/test")
+        self.assertEqual(
+            extraction.getRelativePath("home/test/browser/brand.dtd"),
+            "browser/brand.dtd",
+        )
+
+    def testGetProductStringsRelativePath(self):
+        repo_path = os.path.relpath(self.testfiles_path / "product" / "bg")
+        extraction = tmx_prod.StringExtraction(
+            str(self.storage_path), "bg", "en-US", "test"
+        )
+        extraction.setRepositoryPath(f".{os.path.sep}{repo_path}")
+        extraction.extractStrings()
+
+        self.assertEqual(
+            sorted(extraction.translations.keys()),
+            [
+                "lightning.properties:imipBarReplyText",
+                "lightning.properties:imipBarReplyToNotExistingItem",
+            ],
+        )
+
+    def testGetProductStringsDoubleSlashPath(self):
+        # Transvision builds the path as "$path/$locale/": if the base path
+        # already ends with a slash, the result contains "//"
+        base_path = f"{self.testfiles_path / 'product'}/"
+        extraction = tmx_prod.StringExtraction(
+            str(self.storage_path), "bg", "en-US", "test"
+        )
+        extraction.setRepositoryPath(f"{base_path}/bg/")
+        extraction.extractStrings()
+
+        self.assertEqual(
+            sorted(extraction.translations.keys()),
+            [
+                "lightning.properties:imipBarReplyText",
+                "lightning.properties:imipBarReplyToNotExistingItem",
+            ],
+        )
 
     def testOutput(self):
         repo_path = self.testfiles_path / "tmx" / "en-US"

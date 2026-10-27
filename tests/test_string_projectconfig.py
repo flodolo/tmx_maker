@@ -1,3 +1,4 @@
+import os
 import unittest
 
 from pathlib import Path
@@ -58,6 +59,19 @@ class TestStringExtraction(unittest.TestCase):
         self.assertEqual(len(strings_locale["en"]), 2)
         self.assertEqual(len(strings_locale["de"]), 2)
         self.assertEqual(len(strings_locale["fr"]), 0)
+
+    def testGetProductStringsRelativePath(self):
+        # Keys should not depend on how the TOML path is provided
+        toml_path = os.path.relpath(self.testfiles_path / "toml" / "l10n.toml")
+        extraction = tmx_proj.StringExtraction(
+            toml_path, str(self.storage_path), "en", "test", False
+        )
+        extraction.extractStrings()
+
+        self.assertEqual(
+            sorted(extraction.translations["en"].keys()),
+            ["test/en/file.ftl:foo", "test/en/file2.ftl:foos"],
+        )
 
 
 if __name__ == "__main__":
